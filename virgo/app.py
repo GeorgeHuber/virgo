@@ -10,7 +10,8 @@ import numpy as np
 import netCDF4 as nc
 
 from virgo import utils, graph
-DEBUG = False
+DEBUG = True
+
 class App:
     def __init__(self, root: tk.Tk):
         """Initializes a new NAME app
@@ -33,10 +34,9 @@ class App:
 
         self.filePath = ""
         self.data = None
-
         # self._drag_data = {}
 
-        self.plotTypes = ["Line Plot", "Color Map"]
+        self.sources = []
 
         self.create_canvas_page()
         self.create_data_view_page()
@@ -46,6 +46,7 @@ class App:
         if DEBUG:
             self.filePath = "/Users/grhuber/Downloads/2018_High_Vertical.geosgcm_gwd.20180201.nc4"
             self.load_data()
+
 
     def set_main_menu(self):
         """Configures highest level menu bar for the app.
@@ -82,6 +83,8 @@ class App:
         self.widgetMenu.grid(column=0, row=0, sticky="nsew")
         ttk.Label(self.canvas, text="Panopoly The Sequel", padding=10).grid()
         ttk.Button(self.widgetMenu, text="add node", command=self.add_node_to_canvas).grid()
+        ttk.Button(self.widgetMenu, text="add data source node", command=self.add_data_source_node_to_canvas).grid()
+        ttk.Button(self.widgetMenu, text="Run Canvas", command=self.run_canvas).grid()
 
         
     def add_node_to_canvas(self, node_id=None):
@@ -89,6 +92,15 @@ class App:
         n.ins = [graph.Input(n, int,"a"), graph.Input(n, int, "b")]
         n.outs = [graph.Output(n, int, "c"), graph.Output(n, int, "d")]
         n.render()
+    
+    def add_data_source_node_to_canvas(self, node_id=None):
+        n = graph.DataSourceNode(self)
+        self.sources.append(n)
+        n.render()
+
+    def run_canvas(self):
+        for node in self.sources:
+            node.forward()
 
     def update_canvas_page(self):
         pass
@@ -162,8 +174,8 @@ class App:
         else:
             lines = self.selectedNodeVar.node.draggableNode.lines[self.selectedNodeVar]
             if "None" not in lines:
-                #We need to create a new one
-                lines["None"] = self.canvas.create_line(0, 0, x, y)
+                # We need to create a new one
+                lines["None"] = self.canvas.create_line(0, 0, x, y, width=5)
             lineId = lines["None"]
             newCoords = self.canvas.coords(lineId)[:2] + [x, y]
             self.canvas.coords(lineId, *newCoords)
