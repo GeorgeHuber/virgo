@@ -9,130 +9,8 @@ from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg)
 import numpy as np
 import netCDF4 as nc
 
-import utils
-"""TODOS:
-    Support multiple edges
-    backtrace edges to account for readjustment on two way connections
-"""
+from virgo import utils, graph
 DEBUG = False
-class DraggableNode(tk.Frame):
-    def __init__(self, ins, outs, app, **kwargs):
-        super().__init__(**kwargs)
-        self.start_pos = 0, 0
-        self.app = app
-        self.canvas = self.app.canvas
-        self.ins = ins
-        self.outs = outs
-        self.inButtons = {}
-        self.outButtons = {}
-        self.lines = {}
-        self.create_ui()
-        self.id = self.canvas.create_window(400, 400, window=self)
-        self.bind_class(self.id, "<ButtonPress-1>", self.on_drag_start)
-        self.bind_class(self.id, "<ButtonRelease-1>", self.on_drag_stop)
-        self.bind_class(self.id, "<B1-Motion>", self.on_drag_motion)
-        utils.bind_all_recur(self)
-
-    def create_ui(self):
-        ttk.Label(self,text="empty widget").grid(row=0, column=0)
-        varFrame = ttk.Frame(self)
-        varFrame.grid_columnconfigure(0,weight=1)
-        varFrame.grid_columnconfigure(2, weight=1)
-        inputBox = ttk.Frame(varFrame)
-        ttk.Label(inputBox, text="Inputs").grid()
-        for inVar in self.ins:
-            inButton = ttk.Button(inputBox, text=":{}".format(inVar.description), command=lambda x=inVar:self.app.node_select_handler(x))
-            self.inButtons[inVar] = inButton
-            inButton.grid()
-        outputBox = ttk.Frame(varFrame)
-        ttk.Label(outputBox, text="Outputs").grid()
-        for out in self.outs:
-            outButton = ttk.Button(outputBox, text="{}:".format(out.description), command=lambda x=out:self.app.node_select_handler(x))
-            self.outButtons[out] = outButton
-            outButton.grid()
-        inputBox.grid(column=0, row=0)
-        outputBox.grid(column=2, row=0)
-        varFrame.grid(sticky ="nsew")
-    def on_drag_start(self, event):
-        rect = self.canvas.bbox(self.id)
-        self.canvas.addtag_withtag("drag", self.id)
-        eventx = event.x_root - rect[0]
-        eventy = event.y_root - rect[1]
-        self.start_pos = eventx, eventy
-    def on_drag_stop(self, event):
-        self.canvas.dtag("drag")
-    def on_drag_motion(self, event):
-        #TODO: adjust active lines on drag
-        x = min(max(event.x_root-self.start_pos[0], 0),self.canvas.winfo_width()-10)
-        y = min(max(event.y_root-self.start_pos[1], 0),self.canvas.winfo_height()-10)
-        self.canvas.moveto("drag", x, y)
-        self.update_output_lines()
-        self.update_input_lines()
-    def update_output_lines(self):
-        for outVar in self.lines.keys():
-            for lineId in self.lines[outVar].values():
-                curCoords = self.canvas.coords(lineId)
-                wx, wy = self.canvas.winfo_rootx(), self.canvas.winfo_rooty()
-                bx, by = self.outButtons[outVar].winfo_rootx(), self.outButtons[outVar].winfo_rooty()
-                w, h =self.outButtons[outVar].winfo_width() ,  self.outButtons[outVar].winfo_height()
-                x = bx - wx + (w)*0.8
-                y = by - wy + (h)/2
-                self.canvas.coords(lineId, x, y, curCoords[2:])
-    def update_input_lines(self):
-        for inVar in self.ins:
-            for outVar in inVar.edges:
-                lineId = outVar.node.draggableNode.lines[outVar][inVar]
-                curCoords = self.canvas.coords(lineId)
-                wx, wy = self.canvas.winfo_rootx(), self.canvas.winfo_rooty()
-                bx, by = self.inButtons[inVar].winfo_rootx(), self.inButtons[inVar].winfo_rooty()
-                w, h =self.inButtons[inVar].winfo_width() ,  self.inButtons[inVar].winfo_height()
-                x = bx - wx + (w)*0.2
-                y = by - wy + (h)/2
-                self.canvas.coords(lineId, curCoords[:2], x, y)
-
-class NodeVar:
-    def __init__(self, parent, type, description):
-        self.type = type
-        self.description = description
-        self.node = parent
-        self.edges = []
-class Input(NodeVar):
-    def __init__(self, parent, type, description=None):
-        super().__init__(parent, type, description)
-        self.ready = False
-        self.buffer = None
-    def connect(self, output):
-        pass    
-class Output(NodeVar):
-    def __init__(self, parent, type, description=None):
-        super().__init__(parent, type, description)
-    def connect(self, output):
-        pass
-class Node:
-    def __init__(self, app=None, module=lambda x:x, ins=None, outs=None, edges=None):
-        self.ins = ins if ins else []
-        self.outs = outs if outs else []
-        self.app = app
-        self.module = module
-    def render(self):
-        self.draggableNode = DraggableNode(app=self.app, ins=self.ins, outs=self.outs)
-    def forward(self):
-        for inputVar in self.ins:
-            if not inputVar.ready:
-                return
-        output = self.module(*[x.buffer for x in self.ins])
-        #TODO: type checking to make sure ins and outs align
-        for out in self.outs:
-            for edge in out.edges:
-                output_index = self.outs.index(out)
-                edge.buffer = output[output_index]
-                edge.ready = True
-                edge.node.forward()
-
-        for inputVar in self.ins:
-           inputVar.ready = False
-           inputVar.buffer = None
-
 class App:
     def __init__(self, root: tk.Tk):
         """Initializes a new NAME app
@@ -207,9 +85,9 @@ class App:
 
         
     def add_node_to_canvas(self, node_id=None):
-        n = Node(self)
-        n.ins = [Input(n, int,"a"), Input(n, int, "b")]
-        n.outs = [Output(n, int, "c"), Output(n, int, "d")]
+        n = graph.Node(self)
+        n.ins = [graph.Input(n, int,"a"), graph.Input(n, int, "b")]
+        n.outs = [graph.Output(n, int, "c"), graph.Output(n, int, "d")]
         n.render()
 
     def update_canvas_page(self):
@@ -279,7 +157,8 @@ class App:
         #TODO: support multiple edges.
         if self.selectedNodeVar not in self.selectedNodeVar.node.draggableNode.lines:
             lines = self.selectedNodeVar.node.draggableNode.lines[self.selectedNodeVar] = {}
-            lines["None"] = self.canvas.create_line(0, 0, x, y)
+            #TODO: simplify this code, it is dumb. Add delete handler on double click
+            lines["None"] = self.canvas.create_line(0, 0, x, y, width="5")
         else:
             lines = self.selectedNodeVar.node.draggableNode.lines[self.selectedNodeVar]
             if "None" not in lines:
@@ -296,7 +175,7 @@ class App:
             self.canvas.delete(lineId)
             del self.selectedNodeVar.node.draggableNode.lines[self.selectedNodeVar]["None"]
             self.selectedNodeVar = None
-    def node_select_handler(self, nodeVar: NodeVar):
+    def node_select_handler(self, nodeVar: graph.NodeVar):
         """Called when a nodeVar is selected for creating an edge. If 
         self.selectedNodeVar is not None, then an edge must be created between 
         selected node and the new nodeVar
@@ -304,10 +183,10 @@ class App:
         Args:
             nodeVar (NodeVar): the new input or output being selected
         """
-        if not self.selectedNodeVar and isinstance(nodeVar, Output):
+        if not self.selectedNodeVar and isinstance(nodeVar, graph.Output):
             self.selectedNodeVar = nodeVar
         elif self.selectedNodeVar:
-            if isinstance(nodeVar, Input):
+            if isinstance(nodeVar, graph.Input):
             # Handle new connection
                 self.selectedNodeVar.edges.append(nodeVar)
                 nodeVar.edges.append(self.selectedNodeVar)
@@ -315,13 +194,3 @@ class App:
                 del self.selectedNodeVar.node.draggableNode.lines[self.selectedNodeVar]["None"]
                 nodeVar.node.draggableNode.update_input_lines()
                 self.selectedNodeVar = None
-
-
-def main():
-    matplotlib.use('agg')  
-    root = tk.Tk()
-    app = App(root)
-    root.mainloop()
-
-if __name__ == "__main__":
-    main()
