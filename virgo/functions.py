@@ -1,9 +1,9 @@
 def default(*kwargs):
     return kwargs
 
-def default_print(*kwargs):
-    print(kwargs)
-    return kwargs
+def default_print(*args):
+    print("Default passing args:", *args)
+    return args
 
 def get_default_return(data):
     def func():
@@ -11,7 +11,7 @@ def get_default_return(data):
     return func
 
 def get_default_return_print(data):
-    print("returning data")
     def func():
-        return data
+        print("returning data:", data)
+        return (data,)
     return func

@@ -10,6 +10,8 @@ import numpy as np
 import netCDF4 as nc
 
 from virgo import utils, graph
+from virgo.nodes import base_nodes, graphical
+
 DEBUG = True
 
 class App:
@@ -82,9 +84,19 @@ class App:
         self.widgetMenu = tk.Frame(self.page1, highlightbackground="black", highlightthickness=1)
         self.widgetMenu.grid(column=0, row=0, sticky="nsew")
         ttk.Label(self.canvas, text="Panopoly The Sequel", padding=10).grid()
+        
+        #List of different widgets to add to the canvas
+        ttk.Label(self.widgetMenu, text="Functional:").grid()
         ttk.Button(self.widgetMenu, text="add node", command=self.add_node_to_canvas).grid()
+
+        ttk.Label(self.widgetMenu, text="Data Source:").grid()
         ttk.Button(self.widgetMenu, text="add data source node", command=self.add_data_source_node_to_canvas).grid()
-        ttk.Button(self.widgetMenu, text="Run Canvas", command=self.run_canvas).grid()
+
+        ttk.Label(self.widgetMenu, text="Graphical:").grid()
+        for nodeType in graphical.__all__:
+            ttk.Button(self.widgetMenu, text="add graph node: {}".format(nodeType.description), command=lambda x=nodeType: self.add_graph_node_to_canvas(x)).grid()
+
+        ttk.Button(self.widgetMenu, text="Run Canvas", command=self.run_canvas).grid(pady=50)
 
         
     def add_node_to_canvas(self, node_id=None):
@@ -94,8 +106,12 @@ class App:
         n.render()
     
     def add_data_source_node_to_canvas(self, node_id=None):
-        n = graph.DataSourceNode(self)
+        n = base_nodes.DataSourceNode(self)
         self.sources.append(n)
+        n.render()
+
+    def add_graph_node_to_canvas(self, nodeType):
+        n = nodeType(self)
         n.render()
 
     def run_canvas(self):
@@ -167,25 +183,25 @@ class App:
             return
         x, y = event.x, event.y
         #TODO: support multiple edges.
-        if self.selectedNodeVar not in self.selectedNodeVar.node.draggableNode.lines:
-            lines = self.selectedNodeVar.node.draggableNode.lines[self.selectedNodeVar] = {}
+        if self.selectedNodeVar not in self.selectedNodeVar.node.draggableWidget.lines:
+            lines = self.selectedNodeVar.node.draggableWidget.lines[self.selectedNodeVar] = {}
             #TODO: simplify this code, it is dumb. Add delete handler on double click
-            lines["None"] = self.canvas.create_line(0, 0, x, y, width="5")
+            lines["None"] = self.canvas.create_line(0, 0, x, y, width=2)
         else:
-            lines = self.selectedNodeVar.node.draggableNode.lines[self.selectedNodeVar]
+            lines = self.selectedNodeVar.node.draggableWidget.lines[self.selectedNodeVar]
             if "None" not in lines:
                 # We need to create a new one
-                lines["None"] = self.canvas.create_line(0, 0, x, y, width=5)
+                lines["None"] = self.canvas.create_line(0, 0, x, y, width=2)
             lineId = lines["None"]
             newCoords = self.canvas.coords(lineId)[:2] + [x, y]
             self.canvas.coords(lineId, *newCoords)
-        self.selectedNodeVar.node.draggableNode.update_output_lines()
+        self.selectedNodeVar.node.draggableWidget.update_output_lines()
     def canvas_click_handler(self, event):
         #TODO: add remove functionality
         if self.selectedNodeVar:
-            lineId = self.selectedNodeVar.node.draggableNode.lines[self.selectedNodeVar]["None"]
+            lineId = self.selectedNodeVar.node.draggableWidget.lines[self.selectedNodeVar]["None"]
             self.canvas.delete(lineId)
-            del self.selectedNodeVar.node.draggableNode.lines[self.selectedNodeVar]["None"]
+            del self.selectedNodeVar.node.draggableWidget.lines[self.selectedNodeVar]["None"]
             self.selectedNodeVar = None
     def node_select_handler(self, nodeVar: graph.NodeVar):
         """Called when a nodeVar is selected for creating an edge. If 
@@ -202,7 +218,7 @@ class App:
             # Handle new connection
                 self.selectedNodeVar.edges.append(nodeVar)
                 nodeVar.edges.append(self.selectedNodeVar)
-                self.selectedNodeVar.node.draggableNode.lines[self.selectedNodeVar][nodeVar] = self.selectedNodeVar.node.draggableNode.lines[self.selectedNodeVar]["None"]
-                del self.selectedNodeVar.node.draggableNode.lines[self.selectedNodeVar]["None"]
-                nodeVar.node.draggableNode.update_input_lines()
+                self.selectedNodeVar.node.draggableWidget.lines[self.selectedNodeVar][nodeVar] = self.selectedNodeVar.node.draggableWidget.lines[self.selectedNodeVar]["None"]
+                del self.selectedNodeVar.node.draggableWidget.lines[self.selectedNodeVar]["None"]
+                nodeVar.node.draggableWidget.update_input_lines()
                 self.selectedNodeVar = None
