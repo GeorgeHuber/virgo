@@ -17,7 +17,7 @@ class DataSourceWidget(tk.Frame):
         super().__init__(parent, **kwargs)
         self.app = app
         self.node = node
-        ttk.Label(self, text="I AM BECOME DATA").grid()
+        ttk.Label(self, text="Data Source").grid()
         self.dataName = tk.StringVar()
         self.dataSelect = ttk.OptionMenu(self, self.dataName)
         self.dataSelect.grid()
@@ -34,7 +34,7 @@ class DataSourceWidget(tk.Frame):
     def set_data_handler(self, dataName):
         self.dataName.set(dataName)
         self.node.outs = [graph.Output(self.node, None, description=dataName)]
-        self.node.module = functions.get_default_return_print(self.app.data.variables[dataName])
+        self.node.module = functions.get_default_return_print(self.app.data[dataName])
         # Object will not contain draggable node in initial setup run
         if hasattr(self.node, "draggableWidget"):
             utils.destroy_children(self.node.draggableWidget.varFrame)
@@ -43,7 +43,7 @@ class DataSourceWidget(tk.Frame):
 
 
 class DataSourceNode(graph.Node):
-    description = "default"
+    description = "data source"
     def __init__(self, app, **kwargs):
         super().__init__(app, outs=[graph.Output(self, None, description="")],**kwargs)
     def render(self):
@@ -54,7 +54,7 @@ class GraphWidget(tk.Frame):
         super().__init__(parent, **kwargs)
         self.app = app
         self.node = node
-        ttk.Label(self, text="I AM BECOME A Graph").grid()
+        ttk.Label(self, text="Graph Widget").grid()
         ttk.Button(self, text="options").grid()
 
 class GraphNode(graph.Node):
@@ -79,12 +79,19 @@ class FunctionalWidget(tk.Frame):
         super().__init__(parent, **kwargs)
         self.app = app
         self.node = node
-        ttk.Label(self, text="I AM BECOME A Function").grid()
+        ttk.Label(self, text="Functional Widget").grid()
         ttk.Button(self, text="options")
+
 
 class FunctionalNode(graph.Node):
     description = "default"
     def __init__(self, app, **kwargs):
-        super().__init__(app, ins=[graph.Input(self, None, "axis1"), graph.Input(self, None, "axis2")],**kwargs)
+        super().__init__(app,**kwargs, module=self.module_wrapper)
     def render(self):
-        self.draggableWidget = graph.DraggableWidget(self, app=self.app, widget=GraphWidget)        
+        self.draggableWidget = graph.DraggableWidget(self, app=self.app, widget=FunctionalWidget)   
+    def module_wrapper(self, *args):
+        outputs = self.function(*args)
+        return outputs
+    def function(self, *args):
+        return args
+

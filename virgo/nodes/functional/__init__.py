@@ -1,7 +1,9 @@
-from .scratch import scratch
-from .example_functions import donothing
+from .scratch import Scratch
+from .example_functions import DoNothing
+from .data_operations import DimensionSlice
 
 __all__ = [
-    scratch,
-    donothing
+    # Scratch,
+    # DoNothing,
+    DimensionSlice
 ]

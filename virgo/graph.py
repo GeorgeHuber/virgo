@@ -22,7 +22,7 @@ class Output(NodeVar):
     def connect(self, output):
         pass
 class Node:
-    def __init__(self, app=None, module=functions.default_print, ins=None, outs=None, edges=None, description=None):
+    def __init__(self, app=None, module=functions.default, ins=None, outs=None, edges=None, description=None):
         self.ins = ins if ins else []
         self.outs = outs if outs else []
         self.app = app
@@ -34,11 +34,12 @@ class Node:
         for inputVar in self.ins:
             if not inputVar.ready:
                 return
-        output = self.module(*[x.buffer for x in self.ins])
+        args = [x.buffer for x in self.ins]
+        output = self.module(*args)
         #TODO: type checking to make sure ins and outs align
         for out in self.outs:
+            output_index = self.outs.index(out)
             for edge in out.edges:
-                output_index = self.outs.index(out)
                 edge.buffer = output[output_index]
                 edge.ready = True
                 edge.node.forward()

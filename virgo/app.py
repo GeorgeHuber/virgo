@@ -7,10 +7,10 @@ from matplotlib.figure import Figure
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg)
 
 import numpy as np
-import netCDF4 as nc
+import xarray as xr
 
 from virgo import utils, graph
-from virgo.nodes import base_nodes, graphical
+from virgo.nodes import base_nodes, graphical, functional
 
 DEBUG = True
 
@@ -86,34 +86,27 @@ class App:
         ttk.Label(self.canvas, text="Panopoly The Sequel", padding=10).grid()
         
         #List of different widgets to add to the canvas
-        ttk.Label(self.widgetMenu, text="Functional:").grid()
-        ttk.Button(self.widgetMenu, text="add node", command=self.add_node_to_canvas).grid()
+        ttk.Label(self.widgetMenu, text="Data:").grid()
+        ttk.Button(self.widgetMenu, text="Add a Data Source", command=lambda x=base_nodes.DataSourceNode: self.add_source_node_to_canvas(x)).grid()
 
-        ttk.Label(self.widgetMenu, text="Data Source:").grid()
-        ttk.Button(self.widgetMenu, text="add data source node", command=self.add_data_source_node_to_canvas).grid()
-
-        ttk.Label(self.widgetMenu, text="Graphical:").grid()
+        ttk.Label(self.widgetMenu, text="Graph Type:").grid()
         for nodeType in graphical.__all__:
-            ttk.Button(self.widgetMenu, text="add graph node: {}".format(nodeType.description), command=lambda x=nodeType: self.add_graph_node_to_canvas(x)).grid()
+            ttk.Button(self.widgetMenu, text="add {}:".format(nodeType.description), command=lambda x=nodeType: self.add_node_to_canvas(x)).grid()
+
+
+        ttk.Label(self.widgetMenu, text="Functions:").grid()
+        for nodeType in functional.__all__:
+            ttk.Button(self.widgetMenu, text="{}".format(nodeType.description), command=lambda x=nodeType: self.add_node_to_canvas(x)).grid()
 
         ttk.Button(self.widgetMenu, text="Run Canvas", command=self.run_canvas).grid(pady=50)
 
-        
-    def add_node_to_canvas(self, node_id=None):
-        n = graph.Node(self)
-        n.ins = [graph.Input(n, int,"a"), graph.Input(n, int, "b")]
-        n.outs = [graph.Output(n, int, "c"), graph.Output(n, int, "d")]
-        n.render()
-    
-    def add_data_source_node_to_canvas(self, node_id=None):
-        n = base_nodes.DataSourceNode(self)
-        self.sources.append(n)
-        n.render()
-
-    def add_graph_node_to_canvas(self, nodeType):
+    def add_node_to_canvas(self, nodeType):
         n = nodeType(self)
         n.render()
-
+        return n
+    def add_source_node_to_canvas(self, nodeType):
+        n = self.add_node_to_canvas(nodeType)
+        self.sources.append(n)
     def run_canvas(self):
         for node in self.sources:
             node.forward()
@@ -132,15 +125,15 @@ class App:
         ttk.Label(self.page2, text="Data Properties", padding=10).grid(column=0, row=0)
         ttk.Label(self.page2, text="Metadata").grid()
         if self.data:
-            for property in self.data.ncattrs():
+            for property in self.data.attrs:
                 ttk.Label(self.page2, text=property).grid()
-                ttk.Label(self.page2, text=self.data.getncattr(property)).grid()
+                ttk.Label(self.page2, text=self.data.attrs[property]).grid()
         ttk.Label(self.page2, text="Variables").grid()
         if self.data:
             for variable in self.data.variables.keys():
                 ttk.Label(self.page2, text=variable).grid()
                 try:
-                    ttk.Label(self.page2, text=self.data.variables[variable].long_name).grid()
+                    ttk.Label(self.page2, text=self.data.variables[variable].attrs.long_name).grid()
                 except:
                     pass
 
@@ -156,7 +149,7 @@ class App:
         Updates data sources on main canvas page and recreates data view page.
         """
         try:
-            self.data = nc.Dataset(self.filePath)
+            self.data = xr.open_dataset(self.filePath)
         except Exception as e:
             tk.messagebox.showerror("Error", f"Failed to load NetCDF file: {e}")
             return

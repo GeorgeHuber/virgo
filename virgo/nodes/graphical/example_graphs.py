@@ -4,34 +4,34 @@ from virgo.graph import Input
 from matplotlib.figure import Figure
 import matplotlib.pyplot as plt
 class Simple2D(GraphNode):
-    description = "Simple 2D Plot"
+    description = "2Var-Line Plot"
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs, 
         ins = [
-            Input(self, any, "axis1"),
-            Input(self, any, "axis2")
+            Input(self, any, "x"),
+            Input(self, any, "y")
         ],
         )
     def plot(self, axis1, axis2, fig: Figure):
-        print(axis1, axis2)
-        ax = fig.add_subplot(111) 
+        ax = fig.add_subplot(111)
         ax.plot(axis1[:], axis2[:])
-        ax.set_xlabel(axis1.long_name)
-        ax.set_ylabel(axis2.long_name)
+        ax.set_xlabel(axis1.attrs["long_name"])
+        ax.set_ylabel(axis2.attrs["long_name"])
         
 
 class SimpleColorMesh(GraphNode):
-    description = "Simple Color Mesh"
+    description = "Color Mesh Plot"
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs, ins = [
-            Input(self, any, "axis1"),
-            Input(self, any, "axis2"),
-            Input(self, any, "variable")
+            Input(self, any, "x-axis"),
+            Input(self, any, "y-axis"),
+            Input(self, any, "var to plot")
         ])
     def plot(self, axis1, axis2, var, fig: Figure):
+        print("graphing")
         ax = fig.add_subplot(111) 
-        mesh = ax.pcolormesh(var[0,0,:,:])
+        mesh = ax.pcolormesh(var[:,:])
         fig.colorbar(mesh, ax=ax)
-        ax.set_xlabel(axis1.long_name)
-        ax.set_ylabel(axis2.long_name)
-        ax.set_title("{}".format(var.long_name))
+        ax.set_xlabel(axis1.attrs["long_name"])
+        ax.set_ylabel(axis2.attrs["long_name"])
+        ax.set_title("{}".format(var.attrs["long_name"]))

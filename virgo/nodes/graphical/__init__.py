@@ -2,7 +2,7 @@ from .scratch import Scratch
 from .example_graphs import Simple2D, SimpleColorMesh
 
 __all__ = [
-    Scratch,
+    # Scratch,
     Simple2D,
     SimpleColorMesh
 ]
