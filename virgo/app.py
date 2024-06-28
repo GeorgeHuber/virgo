@@ -8,11 +8,13 @@ from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg)
 
 import numpy as np
 import xarray as xr
+import os
 
 from virgo import utils, graph
 from virgo.nodes import base_nodes, graphical, functional
 
-DEBUG = True
+DEBUG = os.getenv('DEBUG') == "True"
+
 
 class App:
     def __init__(self, root: tk.Tk):
@@ -23,7 +25,10 @@ class App:
         """
         self.root = root
         self.root.geometry("1200x900")
-
+        # TODO: conn
+        # style = ttk.Style()
+        # style.configure('TFrame', background="#0c0",borderwidth="2")
+        # style.configure('TLabel', background="#0c0",foreground="green")
         self.root.title("Panopoly who?")
 
         self.root.grid_columnconfigure(0, weight=1)
@@ -49,7 +54,6 @@ class App:
             self.filePath = "/Users/grhuber/Downloads/2018_High_Vertical.geosgcm_gwd.20180201.nc4"
             self.load_data()
 
-
     def set_main_menu(self):
         """Configures highest level menu bar for the app.
         """
@@ -69,7 +73,7 @@ class App:
         self.root.config(menu=self.menuBar)
 
     def create_canvas_page(self):
-        self.page1 = tk.Frame(self.root)
+        self.page1 = ttk.Frame(self.root)
         self.page1.grid(column=0, row=0,sticky ="nsew")
         
         self.page1.grid_columnconfigure(0, weight=1,uniform="page1")
@@ -81,9 +85,10 @@ class App:
         self.canvas.bind('<Motion>', self.canvas_motion_handler)
         self.canvas.bind('<ButtonPress-1>', self.canvas_click_handler)
 
-        self.widgetMenu = tk.Frame(self.page1, highlightbackground="black", highlightthickness=1)
+        self.widgetMenu = ttk.Frame(self.page1, style="TFrame")
         self.widgetMenu.grid(column=0, row=0, sticky="nsew")
         ttk.Label(self.canvas, text="Panopoly The Sequel", padding=10).grid()
+        ttk.Label(self.canvas, text="Use the top menu to open a file to get started").grid()
         
         #List of different widgets to add to the canvas
         ttk.Label(self.widgetMenu, text="Data:").grid()
@@ -98,7 +103,8 @@ class App:
         for nodeType in functional.__all__:
             ttk.Button(self.widgetMenu, text="{}".format(nodeType.description), command=lambda x=nodeType: self.add_node_to_canvas(x)).grid()
 
-        ttk.Button(self.widgetMenu, text="Run Canvas", command=self.run_canvas).grid(pady=50)
+        ttk.Button(self.widgetMenu, text="Run Canvas", command=self.run_canvas).grid(pady=20)
+        ttk.Button(self.widgetMenu, text="Clear Canvas", command=self.clear_canvas).grid(pady=20)
 
     def add_node_to_canvas(self, nodeType):
         n = nodeType(self)
@@ -110,7 +116,10 @@ class App:
     def run_canvas(self):
         for node in self.sources:
             node.forward()
-
+    def clear_canvas(self):
+        self.selectedNodeVar = None
+        self.sources = []
+        self.canvas.delete('all')
     def update_canvas_page(self):
         pass
     
@@ -149,7 +158,7 @@ class App:
         Updates data sources on main canvas page and recreates data view page.
         """
         try:
-            self.data = xr.open_dataset(self.filePath)
+            self.data = xr.open_dataset(self.filePath, decode_times=False)
         except Exception as e:
             tk.messagebox.showerror("Error", f"Failed to load NetCDF file: {e}")
             return
@@ -178,12 +187,11 @@ class App:
         #TODO: support multiple edges.
         if self.selectedNodeVar not in self.selectedNodeVar.node.draggableWidget.lines:
             lines = self.selectedNodeVar.node.draggableWidget.lines[self.selectedNodeVar] = {}
-            #TODO: simplify this code, it is dumb. Add delete handler on double click
+            #TODO: Add delete handler on double click
             lines["None"] = self.canvas.create_line(0, 0, x, y, width=2)
         else:
             lines = self.selectedNodeVar.node.draggableWidget.lines[self.selectedNodeVar]
             if "None" not in lines:
-                # We need to create a new one
                 lines["None"] = self.canvas.create_line(0, 0, x, y, width=2)
             lineId = lines["None"]
             newCoords = self.canvas.coords(lineId)[:2] + [x, y]
@@ -192,9 +200,10 @@ class App:
     def canvas_click_handler(self, event):
         #TODO: add remove functionality
         if self.selectedNodeVar:
-            lineId = self.selectedNodeVar.node.draggableWidget.lines[self.selectedNodeVar]["None"]
+            lines = self.selectedNodeVar.node.draggableWidget.lines
+            lineId = lines[self.selectedNodeVar]["None"]
             self.canvas.delete(lineId)
-            del self.selectedNodeVar.node.draggableWidget.lines[self.selectedNodeVar]["None"]
+            del lines[self.selectedNodeVar]["None"]
             self.selectedNodeVar = None
     def node_select_handler(self, nodeVar: graph.NodeVar):
         """Called when a nodeVar is selected for creating an edge. If 
@@ -212,6 +221,7 @@ class App:
                 self.selectedNodeVar.edges.append(nodeVar)
                 nodeVar.edges.append(self.selectedNodeVar)
                 self.selectedNodeVar.node.draggableWidget.lines[self.selectedNodeVar][nodeVar] = self.selectedNodeVar.node.draggableWidget.lines[self.selectedNodeVar]["None"]
+                print(self.selectedNodeVar.node.draggableWidget.lines[self.selectedNodeVar][nodeVar])
                 del self.selectedNodeVar.node.draggableWidget.lines[self.selectedNodeVar]["None"]
                 nodeVar.node.draggableWidget.update_input_lines()
                 self.selectedNodeVar = None

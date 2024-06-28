@@ -2,6 +2,7 @@ import matplotlib
 
 from .app import App
 import tkinter as tk
+from tkinter import ttk
 
 """TODOS:
     Support multiple edges

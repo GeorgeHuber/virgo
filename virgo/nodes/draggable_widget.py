@@ -2,13 +2,14 @@ import tkinter as tk
 from tkinter import ttk
 from virgo import utils
 class DraggableWidget(tk.Frame):
-    def __init__(self, node, app, widget=None, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, node, app, widgetClass=None, **kwargs):
+        super().__init__(**kwargs, highlightthickness=1, highlightbackground="black")
         self.start_pos = 0, 0
         self.app = app
         self.canvas = self.app.canvas
         self.node = node
-        self.widget = widget
+        self.widgetClass = widgetClass
+        self.widget = None
         self.inButtons = {}
         self.outButtons = {}
         self.lines = {}
@@ -18,38 +19,45 @@ class DraggableWidget(tk.Frame):
         self.bind_class(self.id, "<ButtonPress-1>", self.on_drag_start)
         self.bind_class(self.id, "<ButtonRelease-1>", self.on_drag_stop)
         self.bind_class(self.id, "<B1-Motion>", self.on_drag_motion)
-        utils.bind_all_recur(self, exclude=[self.widget])
 
+        if self.widget and hasattr(self.widget, 'exclude'):
+            utils.bind_all_recur(self, exclude=self.widget.exclude)
+        else:
+            utils.bind_all_recur(self)
     def create_ui(self):
-        if self.widget:
-            self.widget(self, self.node, self.app).grid(row=0, column=0)
+        if self.widgetClass:
+            self.widget = self.widgetClass(self, self.node, self.app)
+            self.widget.grid(row=0, column=0)
         else:
             ttk.Label(self,text="empty widget").grid(row=0, column=0)
         self.varFrame = ttk.Frame(self)
         self.varFrame.grid_columnconfigure(0,weight=1)
         self.varFrame.grid_columnconfigure(2, weight=1)
-        self.update_ins()
-        self.update_outs()
+        self.set_ins()
+        self.set_outs()
         self.varFrame.grid(sticky ="nsew")
-    def update_ins(self):
+    def set_ins(self):
         if len(self.node.ins):
             inputBox = ttk.Frame(self.varFrame)
             ttk.Label(inputBox, text="Inputs").grid()
             for inVar in self.node.ins:
-                inButton = ttk.Button(inputBox, text=":{}".format(inVar.description), command=lambda x=inVar:self.app.node_select_handler(x))
+                inButton = ttk.Button(inputBox, text="<-{}".format(inVar.description), command=lambda x=inVar:self.app.node_select_handler(x))
                 self.inButtons[inVar] = inButton
                 inButton.grid()
             inputBox.grid(column=0, row=0)
-    def update_outs(self):
+    def set_outs(self):
         if len(self.node.outs):
             outputBox = ttk.Frame(self.varFrame)
             ttk.Label(outputBox, text="Outputs").grid()
             for out in self.node.outs:
-                outButton = ttk.Button(outputBox, text="{}:".format(out.description), command=lambda x=out:self.app.node_select_handler(x))
+                outButton = ttk.Button(outputBox, text="{}->".format(out.description), command=lambda x=out:self.app.node_select_handler(x))
                 self.outButtons[out] = outButton
                 outButton.grid()
-            outputBox.grid(column=2, row=0)
-        
+            outputBox.grid(column=0, row=1)
+    def update_outs(self):
+        for out in self.node.outs:
+            button =  self.outButtons[out]
+            button["text"] = "{}->".format(out.description)
     def on_drag_start(self, event):
         rect = self.canvas.bbox(self.id)
         self.canvas.addtag_withtag("drag", self.id)

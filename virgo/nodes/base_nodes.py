@@ -19,8 +19,11 @@ class DataSourceWidget(tk.Frame):
         self.node = node
         ttk.Label(self, text="Data Source").grid()
         self.dataName = tk.StringVar()
+        self.dimInfo= tk.StringVar()
         self.dataSelect = ttk.OptionMenu(self, self.dataName)
         self.dataSelect.grid()
+        self.dimInfoLabel = tk.Label(self, textvariable=self.dimInfo)
+        self.dimInfoLabel.grid()
         # Update dropdown options
         if self.app.data:
             variables = self.app.data.variables.keys()
@@ -31,13 +34,19 @@ class DataSourceWidget(tk.Frame):
             default = list(variables)[0]
             self.dataName.set(default)
             self.set_data_handler(default)
+        self.exclude = [self.dataSelect]
     def set_data_handler(self, dataName):
+        data = self.app.data[dataName]
         self.dataName.set(dataName)
-        self.node.outs = [graph.Output(self.node, None, description=dataName)]
-        self.node.module = functions.get_default_return_print(self.app.data[dataName])
+
+        # self.dimInfo.set(" ".join(["{}->{}".format(data.dims[i], data.shape[i]) for i in range(len(data.dims))]))
+        self.dimInfo.set(str(data.dims)+"\n"+str(data.shape))
+        newOut = graph.Output(self.node, None, description=dataName)
+        curOut = self.node.outs[0]
+        curOut.type, curOut.description = newOut.type, newOut.description
+        self.node.module = functions.get_copy_return_print(data)
         # Object will not contain draggable node in initial setup run
         if hasattr(self.node, "draggableWidget"):
-            utils.destroy_children(self.node.draggableWidget.varFrame)
             self.node.draggableWidget.update_outs()
             self.node.draggableWidget.varFrame.grid()
 
@@ -47,22 +56,23 @@ class DataSourceNode(graph.Node):
     def __init__(self, app, **kwargs):
         super().__init__(app, outs=[graph.Output(self, None, description="")],**kwargs)
     def render(self):
-        self.draggableWidget = graph.DraggableWidget(self, app=self.app, widget=DataSourceWidget)
+        self.draggableWidget = graph.DraggableWidget(self, app=self.app, widgetClass=DataSourceWidget)
 
 class GraphWidget(tk.Frame):
     def __init__(self, parent, node, app, **kwargs):
         super().__init__(parent, **kwargs)
         self.app = app
         self.node = node
-        ttk.Label(self, text="Graph Widget").grid()
+        ttk.Label(self, text=node.description).grid()
         ttk.Button(self, text="options").grid()
 
 class GraphNode(graph.Node):
-    description = "default"
+    description = "Graph Node"
     def __init__(self, app, **kwargs):
-        super().__init__(app,**kwargs, module=self.module_wrapper)
+        #TODO: make sure description inherits correctly
+        super().__init__(app,**kwargs, description=self.description, module=self.module_wrapper)
     def render(self):
-        self.draggableWidget = graph.DraggableWidget(self, app=self.app, widget=GraphWidget)
+        self.draggableWidget = graph.DraggableWidget(self, app=self.app, widgetClass=GraphWidget)
     def module_wrapper(self, *args):
         fig = Figure(figsize = (8, 8), 
                  dpi = 100) 
@@ -79,16 +89,16 @@ class FunctionalWidget(tk.Frame):
         super().__init__(parent, **kwargs)
         self.app = app
         self.node = node
-        ttk.Label(self, text="Functional Widget").grid()
+        ttk.Label(self, text=node.description).grid()
         ttk.Button(self, text="options")
 
 
 class FunctionalNode(graph.Node):
-    description = "default"
+    description = "Functional Node"
     def __init__(self, app, **kwargs):
-        super().__init__(app,**kwargs, module=self.module_wrapper)
+        super().__init__(app,**kwargs, description=self.description, module=self.module_wrapper)
     def render(self):
-        self.draggableWidget = graph.DraggableWidget(self, app=self.app, widget=FunctionalWidget)   
+        self.draggableWidget = graph.DraggableWidget(self, app=self.app, widgetClass=FunctionalWidget)   
     def module_wrapper(self, *args):
         outputs = self.function(*args)
         return outputs
