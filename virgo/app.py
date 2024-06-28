@@ -188,11 +188,11 @@ class App:
         if self.selectedNodeVar not in self.selectedNodeVar.node.draggableWidget.lines:
             lines = self.selectedNodeVar.node.draggableWidget.lines[self.selectedNodeVar] = {}
             #TODO: Add delete handler on double click
-            lines["None"] = self.canvas.create_line(0, 0, x, y, width=2)
+            lines["None"] = self.canvas.create_line(0, 0, x, y, width=3)
         else:
             lines = self.selectedNodeVar.node.draggableWidget.lines[self.selectedNodeVar]
             if "None" not in lines:
-                lines["None"] = self.canvas.create_line(0, 0, x, y, width=2)
+                lines["None"] = self.canvas.create_line(0, 0, x, y, width=3)
             lineId = lines["None"]
             newCoords = self.canvas.coords(lineId)[:2] + [x, y]
             self.canvas.coords(lineId, *newCoords)
@@ -220,8 +220,17 @@ class App:
             # Handle new connection
                 self.selectedNodeVar.edges.append(nodeVar)
                 nodeVar.edges.append(self.selectedNodeVar)
-                self.selectedNodeVar.node.draggableWidget.lines[self.selectedNodeVar][nodeVar] = self.selectedNodeVar.node.draggableWidget.lines[self.selectedNodeVar]["None"]
-                print(self.selectedNodeVar.node.draggableWidget.lines[self.selectedNodeVar][nodeVar])
+                line = self.selectedNodeVar.node.draggableWidget.lines[self.selectedNodeVar]["None"]
+                self.selectedNodeVar.node.draggableWidget.lines[self.selectedNodeVar][nodeVar] = line
+                print(line)
+                self.canvas.tag_bind(line, '<Double-Button-1>', lambda _, out=self.selectedNodeVar, inVar=nodeVar: self.delete_line_handler(out, inVar))
+                self.canvas
                 del self.selectedNodeVar.node.draggableWidget.lines[self.selectedNodeVar]["None"]
                 nodeVar.node.draggableWidget.update_input_lines()
                 self.selectedNodeVar = None
+    def delete_line_handler(self, outVar: graph.Output, inVar: graph.Input):
+        outVar.edges.remove(inVar)
+        inVar.edges.remove(outVar)
+        self.canvas.delete(outVar.node.draggableWidget.lines[outVar][inVar])
+        del outVar.node.draggableWidget.lines[outVar][inVar]
+        print("deleted line")
