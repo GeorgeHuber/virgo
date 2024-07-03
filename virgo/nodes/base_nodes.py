@@ -25,16 +25,20 @@ class DataSourceWidget(tk.Frame):
         self.dimInfoLabel = tk.Label(self, textvariable=self.dimInfo)
         self.dimInfoLabel.grid()
         # Update dropdown options
-        if self.app.data:
-            variables = self.app.data.variables.keys()
-            self.dataSelect['menu'].delete(0, 'end')
-            # TODO: make thsi work when file changes without rebuild
-            for dataName in variables:
-                self.dataSelect['menu'].add_command(label=dataName, command=lambda x=dataName: self.set_data_handler(x))
-            default = list(variables)[0]
-            self.dataName.set(default)
-            self.set_data_handler(default)
+        self.on_data_change()
         self.exclude = [self.dataSelect]
+    def on_data_change(self):
+        if not self.app.data:
+            return
+        variables = self.app.data.variables.keys()
+        self.dataSelect['menu'].delete(0, 'end')
+        for dataName in variables:
+            self.dataSelect['menu'].add_command(label=dataName, command=lambda x=dataName: self.set_data_handler(x))
+        dataName = self.dataName.get()
+        if dataName not in list(variables):
+            dataName = list(variables)[0]
+            self.dataName.set(dataName)
+        self.set_data_handler(dataName)
     def set_data_handler(self, dataName):
         data = self.app.data[dataName]
         self.dataName.set(dataName)
@@ -46,9 +50,17 @@ class DataSourceWidget(tk.Frame):
         curOut.type, curOut.description = newOut.type, newOut.description
         self.node.module = functions.get_copy_return_print(data)
         # Object will not contain draggable node in initial setup run
-        if hasattr(self.node, "draggableWidget"):
+        if self.node.draggableWidget:
             self.node.draggableWidget.update_outs()
             self.node.draggableWidget.varFrame.grid()
+    def get_state(self):
+        state = {
+            "varName": self.dataName.get()
+        }
+        return state
+    def set_state(self, state):
+        self.dataName.set(state["varName"])
+        self.on_data_change()
 
 
 class DataSourceNode(graph.Node):
@@ -57,6 +69,9 @@ class DataSourceNode(graph.Node):
         super().__init__(app, outs=[graph.Output(self, None, description="")],**kwargs)
     def render(self):
         self.draggableWidget = graph.DraggableWidget(self, app=self.app, widgetClass=DataSourceWidget)
+    def on_data_change(self):
+        if self.draggableWidget:
+            self.draggableWidget.widget.on_data_change()
 
 class GraphWidget(tk.Frame):
     def __init__(self, parent, node, app, **kwargs):

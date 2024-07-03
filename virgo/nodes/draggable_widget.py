@@ -24,6 +24,17 @@ class DraggableWidget(tk.Frame):
             utils.bind_all_recur(self, exclude=self.widget.exclude)
         else:
             utils.bind_all_recur(self)
+    def get_state(self):
+        state = {
+            "x": self.winfo_rootx(),
+            "y": self.winfo_rooty(),
+        }
+        if self.widget and hasattr(self.widget, "get_state"):
+            state |= self.widget.get_state()
+        return state
+    def set_state(self, state):
+        if self.widget and hasattr(self.widget, "set_state"):
+            self.widget.set_state(state)
     def create_ui(self):
         if self.widgetClass:
             self.widget = self.widgetClass(self, self.node, self.app)
@@ -76,21 +87,30 @@ class DraggableWidget(tk.Frame):
     def update_output_lines(self):
         for outVar in self.lines.keys():
             for lineId in self.lines[outVar].values():
-                curCoords = self.canvas.coords(lineId)
-                wx, wy = self.canvas.winfo_rootx(), self.canvas.winfo_rooty()
-                bx, by = self.outButtons[outVar].winfo_rootx(), self.outButtons[outVar].winfo_rooty()
-                w, h =self.outButtons[outVar].winfo_width() ,  self.outButtons[outVar].winfo_height()
-                x = bx - wx + (w)*0.8
-                y = by - wy + (h)/2
-                self.canvas.coords(lineId, x, y, curCoords[2:])
+                self.update_output_line(outVar, lineId)
+    def update_output_line(self, outVar, lineId):
+        curCoords = self.canvas.coords(lineId)
+        wx, wy = self.canvas.winfo_rootx(), self.canvas.winfo_rooty()
+        bx, by = self.outButtons[outVar].winfo_rootx(), self.outButtons[outVar].winfo_rooty()
+        w, h =self.outButtons[outVar].winfo_width() ,  self.outButtons[outVar].winfo_height()
+        x = bx - wx + (w)*0.8
+        y = by - wy + (h)/2
+        self.canvas.coords(lineId, x, y, curCoords[2:])
+        print(wx,wy, bx, by, w, h)
     def update_input_lines(self):
         for inVar in self.node.ins:
             for outVar in inVar.edges:
                 lineId = outVar.node.draggableWidget.lines[outVar][inVar]
-                curCoords = self.canvas.coords(lineId)
-                wx, wy = self.canvas.winfo_rootx(), self.canvas.winfo_rooty()
-                bx, by = self.inButtons[inVar].winfo_rootx(), self.inButtons[inVar].winfo_rooty()
-                w, h =self.inButtons[inVar].winfo_width() ,  self.inButtons[inVar].winfo_height()
-                x = bx - wx + (w)*0.2
-                y = by - wy + (h)/2
-                self.canvas.coords(lineId, curCoords[:2], x, y)
+                self.update_input_line(inVar, lineId)
+    def update_input_line(self, inVar, lineId):
+        curCoords = self.canvas.coords(lineId)
+        wx, wy = self.canvas.winfo_rootx(), self.canvas.winfo_rooty()
+        bx, by = self.inButtons[inVar].winfo_rootx(), self.inButtons[inVar].winfo_rooty()
+        w, h =self.inButtons[inVar].winfo_width() ,  self.inButtons[inVar].winfo_height()
+        x = bx - wx + (w)*0.2
+        y = by - wy + (h)/2
+        # print(wx,wy, bx, by, w, h)
+        self.canvas.coords(lineId, curCoords[:2], x, y)
+    def move_to(self, x, y):
+        self.canvas.moveto(self.id, x, y)
+

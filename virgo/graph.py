@@ -28,6 +28,22 @@ class Node:
         self.app = app
         self.module = module
         self.description = description
+        self.draggableWidget = None
+    def get_state(self):
+        state = {
+            "moduleName":str(self.__module__),
+            "className":str(self.__class__.__name__),
+            "description":self.description,
+            "isSource": self in self.app.sources
+        }
+        if self.draggableWidget:
+            state |= self.draggableWidget.get_state()
+        return state
+    def set_state(self, state):
+        self.description = state["description"]
+        if self.draggableWidget:
+            self.draggableWidget.set_state(state)
+            
     def render(self):
         self.draggableWidget = DraggableWidget(self, app=self.app)
     def forward(self):

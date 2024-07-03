@@ -9,10 +9,11 @@ from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg)
 import numpy as np
 import xarray as xr
 import os
+import json, importlib
 
 from virgo import utils, graph
 from virgo.nodes import base_nodes, graphical, functional
-
+from virgo.serialization import serialize_nodes
 DEBUG = os.getenv('DEBUG') == "True"
 
 
@@ -41,9 +42,9 @@ class App:
 
         self.filePath = ""
         self.data = None
-        # self._drag_data = {}
 
         self.sources = []
+        self.nodes = []
 
         self.create_canvas_page()
         self.create_data_view_page()
@@ -70,6 +71,14 @@ class App:
         self.windowMenu.add_command(label="Canvas", command=lambda: self.set_active_page(self.page1))
         self.windowMenu.add_command(label="Data", command=lambda: self.set_active_page(self.page2))
         self.menuBar.add_cascade(label="Window", menu=self.windowMenu)
+
+        self.canvasMenu = tk.Menu(self.menuBar, tearoff=0)
+        self.canvasMenu.add_command(label="Load Canvas from Disk", command=self.load_canvas)
+        self.canvasMenu.add_command(label="Save Canvas to Disk", command=self.save_canvas)
+        if DEBUG:
+            self.canvasMenu.add_command(label="Print Canvas", command=self.print_canvas)
+        self.menuBar.add_cascade(label="Canvas", menu=self.canvasMenu)
+
         self.root.config(menu=self.menuBar)
 
     def create_canvas_page(self):
@@ -109,6 +118,7 @@ class App:
     def add_node_to_canvas(self, nodeType):
         n = nodeType(self)
         n.render()
+        self.nodes.append(n)
         return n
     def add_source_node_to_canvas(self, nodeType):
         n = self.add_node_to_canvas(nodeType)
@@ -164,6 +174,9 @@ class App:
             return
         self.update_canvas_page()
         self.create_data_view_page()
+        for node in self.nodes:
+            if hasattr(node, "on_data_change"):
+                node.on_data_change()
 
     def set_active_page(self, page):
         """Brings page to top level of tkinter rendering. 
@@ -184,7 +197,6 @@ class App:
         if not self.selectedNodeVar:
             return
         x, y = event.x, event.y
-        #TODO: support multiple edges.
         if self.selectedNodeVar not in self.selectedNodeVar.node.draggableWidget.lines:
             lines = self.selectedNodeVar.node.draggableWidget.lines[self.selectedNodeVar] = {}
             #TODO: Add delete handler on double click
@@ -234,3 +246,89 @@ class App:
         self.canvas.delete(outVar.node.draggableWidget.lines[outVar][inVar])
         del outVar.node.draggableWidget.lines[outVar][inVar]
         print("deleted line")
+    def print_canvas(self):
+        print(self.sources)
+    def load_canvas(self):
+        print("Loading Canvas")
+        filename = askopenfilename(filetypes=[("Canvas files", "*.virgo")])
+        if filename:
+            with open(filename, 'r') as file:
+                print("Canvas loaded successfully.")
+                json_data = file.read()
+                data = json.loads(json_data)
+                self.clear_canvas()
+                self.nodes = []
+                self.sources = []
+                for n in data["nodes"]:
+                    NodeClass = getattr(importlib.import_module(n["moduleName"]), n["className"])
+                    node: graph.Node = NodeClass(self)
+                    self.nodes.append(node)
+                    if n["isSource"]:
+                        self.sources.append(node)
+                inList = []
+                for inp in data["ins"]:
+                    inList.append(graph.Input(
+                        self.nodes[inp["parent"]],
+                        any, #TODO:typing support
+                        inp["description"]
+                        ))
+                outList = []
+                for out in data["outs"]:
+                    outList.append(graph.Output(
+                        self.nodes[out["parent"]],
+                        any, #TODO:typing support
+                        out["description"]
+                        ))
+                for i in range(len(data["ins"])):
+                    inp = inList[i]
+                    for outNum in data["ins"][i]["edges"]:
+                        inp.edges.append(outList[outNum])
+                for i in range(len(data["outs"])):
+                    out = outList[i]
+                    for inNum in data["outs"][i]["edges"]:
+                        out.edges.append(inList[inNum])
+                for i in range(len(data["nodes"])):
+                    n = data["nodes"][i]
+                    node = self.nodes[i]
+                    node.ins = []
+                    for inp in n["ins"]:
+                        node.ins.append(inList[inp])
+                    node.outs = []
+                    for out in n["outs"]:
+                        node.outs.append(outList[out]) 
+                    node.render()
+                    self.root.update_idletasks()
+                    cx, cy = self.canvas.winfo_rootx(), self.canvas.winfo_rooty()
+                    x,y = n["x"] - cx, n["y"] - cy
+                    node.draggableWidget.move_to(x,y)
+                    node.set_state(n)
+                for node in self.nodes:
+                    for out in node.outs:
+                        for inp in out.edges:
+                            out.node.draggableWidget.lines[out] = {}
+                            line = self.canvas.create_line(0,0,100,100, width=3)
+                            out.node.draggableWidget.lines[out][inp] = line
+                            self.canvas.tag_bind(line, '<Double-Button-1>', lambda _, out=out, inVar=inp: self.delete_line_handler(out, inVar))
+                            self.root.update_idletasks() 
+                            inp.node.draggableWidget.update_input_line(inp, line)
+                            out.node.draggableWidget.update_output_line(out, line)
+
+            # except Exception as e:
+            #     tk.messagebox.showerror("Error", f"Failed to load canvas: {e}")
+    def save_canvas(self):
+        filename = tk.filedialog.asksaveasfilename(initialfile="canvas", defaultextension=".virgo", filetypes=[("Canvas files", "*.virgo")])
+        if filename:
+            inData, outData, nodeData = serialize_nodes(self.nodes)
+            data = {
+                "nodes":nodeData,
+                "ins":inData,
+                "outs":outData
+                }
+
+            with open(filename, 'w') as file:
+                json.dump(data, file, indent=4)
+                print("Canvas saved successfully.")
+            # except Exception as e:
+            #     tk.messagebox.showerror("Error", f"Failed to save canvas: {e}")
+    
+        print("Saving Canvas")

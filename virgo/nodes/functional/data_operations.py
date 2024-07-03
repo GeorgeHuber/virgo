@@ -23,39 +23,54 @@ class DimensionSliceWidget(tk.Frame):
         self.dimValueSelect = ttk.Combobox(self, values=[], textvariable=self.dimValue, width=5)
         self.dimValueSelect.bind("<<ComboboxSelected>>", self.set_dim_value_handler)
         self.dimValueSelect.grid()
-        self.dimensions = list(self.app.data.dims.keys())
+        self.dimensions = []
         # Update dropdown options
-        if self.app.data:
-            self.dimSelect['menu'].delete(0, 'end')
-            # TODO: make thsi work when file changes without rebuild
-            for dimName in self.dimensions:
-                self.dimSelect['menu'].add_command(label=dimName, command=lambda x=dimName: self.set_dim_handler(x))
-            
-            default = list(self.dimensions)[0]
-            self.set_dim_handler(default)
-
+        self.on_data_change()
+    def on_data_change(self):
+        if not self.app.data:
+            return
+        self.dimensions = list(self.app.data.dims.keys())
+        self.dimSelect['menu'].delete(0, 'end')
+       
+        for dimName in self.dimensions:
+            self.dimSelect['menu'].add_command(label=dimName, command=lambda x=dimName: self.set_dim_handler(x))
+        dimName = self.dimName.get()
+        if dimName not in list(self.dimensions):
+            dimName = list(self.dimensions)[0]
+        self.set_dim_handler(dimName)
     def set_dim_handler(self, dimName):
         self.dimName.set(dimName)
         # dim = self.dimensions.index(dimName)
         #TODO get passed var
-        self.dimValueSelect["values"] = [str(x) for x in range(len(self.app.data[dimName]))]
-        self.dimValue.set("0")
+        self.dimValueSelect["values"] = [str(x.data) for x in self.app.data[dimName]]
+        if self.dimValue.get() not in self.dimValueSelect["values"]:
+            self.dimValue.set(self.dimValueSelect["values"][0])
         self.set_dim_value_handler()
 
     def set_dim_value_handler(self, event=None):
         dimName = self.dimName.get()
         if event:
             self.dimValue.set(event.widget.get())
-        dimVal = int(self.dimValue.get())
+        dimVal = self.dimValue.get()
+        dimIdx = self.dimValueSelect["values"].index(dimVal)
         def function(data):
             print("before slice", data.dims)
             idx = {}
-            idx[dimName] = dimVal
+            idx[dimName] = dimIdx
             slicedData = data[idx]
             print("after slices", slicedData.dims)
             return (slicedData,)
         self.node.function = function
-    
+    def get_state(self):
+        state = {
+            "varName": self.dimName.get(),
+            "index": self.dimValue.get()
+        }
+        return state
+    def set_state(self, state):
+        self.dimName.set(state["varName"])
+        self.dimValue.set(state["index"])
+        self.on_data_change()
 
 
 
@@ -69,6 +84,9 @@ class DimensionSlice(base_nodes.FunctionalNode):
                         )
     def render(self):
         self.draggableWidget = graph.DraggableWidget(self, app=self.app, widgetClass=DimensionSliceWidget)
+    def on_data_change(self):
+        if self.draggableWidget:
+            self.draggableWidget.widget.on_data_change()
 
 
 class DimensionMeanWidget(tk.Frame):
@@ -81,31 +99,40 @@ class DimensionMeanWidget(tk.Frame):
         self.dimSelect = ttk.OptionMenu(self, self.dimName)
         self.exclude = [self.dimSelect]
         self.dimSelect.grid()
-        self.dimensions = list(self.app.data.dims.keys())
+        self.dimensions = []
         # Update dropdown options
-        if self.app.data:
-            self.dimSelect['menu'].delete(0, 'end')
-            # TODO: make thsi work when file changes without rebuild
-            for dimName in self.dimensions:
-                self.dimSelect['menu'].add_command(label=dimName, command=lambda x=dimName: self.set_dim_handler(x))
-            
-            default = list(self.dimensions)[0]
-            self.set_dim_handler(default)
-
+        self.on_data_change()
+    def on_data_change(self):
+        if not self.app.data:
+            return
+        self.dimensions = list(self.app.data.dims.keys())
+        self.dimSelect['menu'].delete(0, 'end')
+        # TODO: make thsi work when file changes without rebuild
+        for dimName in self.dimensions:
+            self.dimSelect['menu'].add_command(label=dimName, command=lambda x=dimName: self.set_dim_handler(x))
+        
+        dimName = self.dimName.get()
+        if dimName not in list(self.dimensions):
+            dimName = list(self.dimensions)[0]
+        self.set_dim_handler(dimName)
     def set_dim_handler(self, dimName):
         self.dimName.set(dimName)
         # dim = self.dimensions.index(dimName)
-        #TODO get passed var
-        
+        #TODO get passed var 
         def function(data):
             newData = data.mean(dimName)
             print(newData)
             newData.attrs = data.attrs
             return (newData,)
         self.node.function = function
-    
-
-
+    def get_state(self):
+        state = {
+            "varName": self.dimName.get()
+        }
+        return state
+    def set_state(self, state):
+        self.dimName.set(state["varName"])
+        self.on_data_change()
 
 class DimensionMean(base_nodes.FunctionalNode):
     description = "Take the mean of a dimension"
@@ -117,3 +144,7 @@ class DimensionMean(base_nodes.FunctionalNode):
                         )
     def render(self):
         self.draggableWidget = graph.DraggableWidget(self, app=self.app, widgetClass=DimensionMeanWidget)
+    
+    def on_data_change(self):
+        if self.draggableWidget:
+            self.draggableWidget.widget.on_data_change()

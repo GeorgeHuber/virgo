@@ -57,3 +57,23 @@ class Transpose(FunctionalNode):
         newArr.attrs = arr.attrs
         print("transposed:", arr.shape, newArr.shape)
         return (newArr,)
+    
+class scaleBy100(FunctionalNode):
+    description = "Convert from scale by 100"
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs, 
+        ins = [
+            Input(self, any, "data"),
+        ],
+        outs = [
+            Output(self, any, "data scaled by 100"),
+        ],
+        )
+    
+    def function(self, data):
+        #Copy variable and then assign new attributes
+        new_values=data*100
+        data = data.copy(data=new_values)
+        # alt["name"] = "alt"
+        data.attrs["long_name"] = "Altitude"
+        return (data,)
