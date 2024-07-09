@@ -96,7 +96,7 @@ class DraggableWidget(tk.Frame):
         x = bx - wx + (w)*0.8
         y = by - wy + (h)/2
         self.canvas.coords(lineId, x, y, curCoords[2:])
-        print(wx,wy, bx, by, w, h)
+        # print(wx,wy, bx, by, w, h)
     def update_input_lines(self):
         for inVar in self.node.ins:
             for outVar in inVar.edges:

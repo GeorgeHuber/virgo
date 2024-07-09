@@ -52,8 +52,10 @@ class App:
         self.set_active_page(self.page1)
 
         if DEBUG:
-            self.filePath = "/Users/grhuber/Downloads/2018_High_Vertical.geosgcm_gwd.20180201.nc4"
+            self.filePath = "/Users/grhuber/Downloads/High-01-29.geosgcm_prog.2018227.nc4"
             self.load_data()
+            self.canvasPath = "/Users/grhuber/Downloads/canvas.virgo"
+            self.load_canvas(self.canvasPath)
 
     def set_main_menu(self):
         """Configures highest level menu bar for the app.
@@ -129,6 +131,7 @@ class App:
     def clear_canvas(self):
         self.selectedNodeVar = None
         self.sources = []
+        self.nodes = []
         self.canvas.delete('all')
     def update_canvas_page(self):
         pass
@@ -248,9 +251,10 @@ class App:
         print("deleted line")
     def print_canvas(self):
         print(self.sources)
-    def load_canvas(self):
+    def load_canvas(self, filename = None):
         print("Loading Canvas")
-        filename = askopenfilename(filetypes=[("Canvas files", "*.virgo")])
+        if not filename:
+            filename = askopenfilename(filetypes=[("Canvas files", "*.virgo")])
         if filename:
             with open(filename, 'r') as file:
                 print("Canvas loaded successfully.")
@@ -300,12 +304,13 @@ class App:
                     self.root.update_idletasks()
                     cx, cy = self.canvas.winfo_rootx(), self.canvas.winfo_rooty()
                     x,y = n["x"] - cx, n["y"] - cy
+                    print(x,y)
                     node.draggableWidget.move_to(x,y)
                     node.set_state(n)
                 for node in self.nodes:
                     for out in node.outs:
+                        out.node.draggableWidget.lines[out] = {}
                         for inp in out.edges:
-                            out.node.draggableWidget.lines[out] = {}
                             line = self.canvas.create_line(0,0,100,100, width=3)
                             out.node.draggableWidget.lines[out][inp] = line
                             self.canvas.tag_bind(line, '<Double-Button-1>', lambda _, out=out, inVar=inp: self.delete_line_handler(out, inVar))

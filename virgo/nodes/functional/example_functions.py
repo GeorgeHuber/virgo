@@ -58,8 +58,8 @@ class Transpose(FunctionalNode):
         print("transposed:", arr.shape, newArr.shape)
         return (newArr,)
     
-class scaleBy100(FunctionalNode):
-    description = "Convert from scale by 100"
+class ScaleBy100(FunctionalNode):
+    description = "Scale input by 10^2"
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs, 
         ins = [
@@ -73,7 +73,34 @@ class scaleBy100(FunctionalNode):
     def function(self, data):
         #Copy variable and then assign new attributes
         new_values=data*100
-        data = data.copy(data=new_values)
+        new_data = data.copy(data=new_values)
         # alt["name"] = "alt"
-        data.attrs["long_name"] = "Altitude"
-        return (data,)
+        new_data.attrs |= {
+            "units":data.attrs.units+"* 10^2"
+        }
+        return (new_data,)
+    
+class PartialDerivative(FunctionalNode):
+    description = "Take the partial derivative: dY/dX"
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs, 
+        ins = [
+            Input(self, any, "X"),
+            Input(self, any, "Y"),
+        ],
+        outs = [
+            Output(self, any, "dY/dX"),
+        ],
+        )
+    
+    def function(self, X, Y):
+        #Copy variable and then assign new attributes
+        idx = Y.dims.index(X.dims[0])
+        data=np.gradient(Y, X, axis=idx)
+        dYdX = Y.copy(data=data)
+        dYdX.attrs = Y.attrs
+        dYdX.attrs |= {
+            "units":Y.attrs["units"]+"/"+X.attrs["units"],
+            "long_name":f"Derivative of {Y.attrs["long_name"]} with respect to {X.attrs["long_name"]}"
+        }
+        return (dYdX,)
