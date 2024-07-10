@@ -1,6 +1,6 @@
 from tkinter import ttk
 import tkinter as tk
-from tkinter.filedialog import askopenfilename
+from tkinter.filedialog import askopenfilenames, askopenfilename
 
 import matplotlib
 from matplotlib.figure import Figure 
@@ -9,7 +9,7 @@ from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg)
 import numpy as np
 import xarray as xr
 import os
-import json, importlib
+import json, importlib, datetime, time
 
 from virgo import utils, graph
 from virgo.nodes import base_nodes, graphical, functional
@@ -40,7 +40,7 @@ class App:
         self.curPage = None
         self.selectedNodeVar = None
 
-        self.filePath = ""
+        self.filePaths = []
         self.data = None
 
         self.sources = []
@@ -52,10 +52,17 @@ class App:
         self.set_active_page(self.page1)
 
         if DEBUG:
-            self.filePath = "/Users/grhuber/Downloads/High-01-29.geosgcm_prog.2018227.nc4"
+            self.filePaths.append("/Users/grhuber/Downloads/High-01-29.geosgcm_prog.2018227.nc4")
+            self.filePaths = [
+                "/Users/grhuber/Downloads/GEOS_DATA/Start_Date_2018-01-29/High-01-29.geosgcm_prog.20180207.nc4",
+                "/Users/grhuber/Downloads/GEOS_DATA/Start_Date_2018-01-29/High-01-29.geosgcm_prog.20180206.nc4"
+            ]
+            
+            now = time.time()
             self.load_data()
-            self.canvasPath = "/Users/grhuber/Downloads/canvas.virgo"
-            self.load_canvas(self.canvasPath)
+            print(f"Loaded in : {time.time() - now} seconds")
+            # self.canvasPath = "/Users/grhuber/Downloads/canvas.virgo"
+            # self.load_canvas(self.canvasPath)
 
     def set_main_menu(self):
         """Configures highest level menu bar for the app.
@@ -162,17 +169,40 @@ class App:
     def select_file(self):
         """Selects a file via os specific interface. See also: load data
         """
-        self.filePath = askopenfilename()
-        if self.filePath:
+        self.filePaths = askopenfilenames()
+        if self.filePaths:
             self.load_data()
 
     def load_data(self):
         """Loads in a netcdf file as a nc4 Dataset object. Throws error if failed open. 
         Updates data sources on main canvas page and recreates data view page.
         """
+        datum = []
         try:
-            self.data = xr.open_dataset(self.filePath, decode_times=False)
+            for f in self.filePaths:
+                datum.append(xr.open_dataset(f, decode_times=False, chunks="auto"))
+            
+            # Case with one file
+            if len(datum) == 1:
+                self.data == datum[0]
+            # Variables are the same so we should concat the files along time
+            # TODO: allow the user to select how to handle multiple files
+            elif datum[0].variables.keys() == datum[1].variables.keys():
+                #TODO: the following code is useful for GEOS but not every file (change)
+                timeCorrected = []
+                for dataset in datum:
+                    timeStr = str(dataset["time"].attrs["begin_date"])
+                    timeFormat = "%Y%m%d"
+                    newTime = dataset["time"] + int(datetime.datetime.strptime(timeStr, timeFormat).timestamp()/60)
+                    newTime.attrs = dataset["time"].attrs
+                    timeCorrected.append(dataset.assign_coords(time=newTime, keep_attrs=True))
+                self.data = xr.concat(timeCorrected, "time") #TODO: defrost this var (since it's hard coded)
+                self.data = self.data.sortby("time")
+            # Otherwise merge them since vars should be different
+            else:
+                self.data = xr.merge(datum, compat="override")
         except Exception as e:
+            print(e)
             tk.messagebox.showerror("Error", f"Failed to load NetCDF file: {e}")
             return
         self.update_canvas_page()
