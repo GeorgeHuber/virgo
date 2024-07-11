@@ -22,7 +22,7 @@ class PartialDerivative(FunctionalNode):
         data=np.gradient(Y, X, axis=idx)
         dYdX = Y.copy(data=data)
         dYdX.attrs |= {
-            "units":Y.attrs["units"]+"/"+X.attrs["units"],
-            "long_name":f"Derivative of {Y.attrs["long_name"]} with respect to {X.attrs["long_name"]}"
+            "units":Y.attrs["units"]+"/"+X.attrs['units'],
+            "long_name":f"Derivative of {Y.attrs['long_name']} with respect to {X.attrs['long_name']}"
         }
         return (dYdX,)

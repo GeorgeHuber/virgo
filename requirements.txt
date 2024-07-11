@@ -1,0 +1,8 @@
+# This file may be used to create an environment using:
+# $ conda create --name <env> --file <this file>
+# platform: osx-64\
+
+matplotlib=3.8.4
+python=3.11.9
+tk=8.6.14
+xarray=2023.6.0
