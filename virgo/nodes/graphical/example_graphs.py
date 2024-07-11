@@ -15,6 +15,7 @@ class Simple2D(GraphNode):
         ],
         )
     def plot(self, axis1, axis2, fig: Figure):
+        print("graphing",axis1.shape,axis2.shape)
         ax = fig.add_subplot(111)
         ax.plot(axis1, axis2)
         ax.set_xlabel(axis1.attrs["long_name"])

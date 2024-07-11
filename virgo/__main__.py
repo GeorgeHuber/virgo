@@ -3,6 +3,7 @@ import matplotlib
 from .app import App
 import tkinter as tk
 from tkinter import ttk
+import xarray as xr
 
 """TODOS:
     Delete node functionality
@@ -28,6 +29,7 @@ from tkinter import ttk
 
 if __name__ == "__main__":
     matplotlib.use('agg')  
+    xr.set_options(keep_attrs=True)
     root = tk.Tk()
     app = App(root)
     root.mainloop()

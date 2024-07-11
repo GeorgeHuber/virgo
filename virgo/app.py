@@ -9,7 +9,7 @@ from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg)
 import numpy as np
 import xarray as xr
 import os
-import json, importlib, datetime, time
+import json, importlib, datetime, time, pathlib
 
 from virgo import utils, graph
 from virgo.nodes import base_nodes, graphical, functional
@@ -43,6 +43,7 @@ class App:
         self.filePaths = []
         self.data = None
 
+        self.configurationsPath = pathlib.Path(os.getcwd()).joinpath("configurations").absolute()
         self.sources = []
         self.nodes = []
 
@@ -61,8 +62,8 @@ class App:
             now = time.time()
             self.load_data()
             print(f"Loaded in : {time.time() - now} seconds")
-            # self.canvasPath = "/Users/grhuber/Downloads/canvas.virgo"
-            # self.load_canvas(self.canvasPath)
+            self.canvasPath = "/Users/grhuber/Downloads/line.virgo"
+            self.load_canvas(self.canvasPath)
 
     def set_main_menu(self):
         """Configures highest level menu bar for the app.
@@ -195,7 +196,7 @@ class App:
                     timeFormat = "%Y%m%d"
                     newTime = dataset["time"] + int(datetime.datetime.strptime(timeStr, timeFormat).timestamp()/60)
                     newTime.attrs = dataset["time"].attrs
-                    timeCorrected.append(dataset.assign_coords(time=newTime, keep_attrs=True))
+                    timeCorrected.append(dataset.assign_coords(time=newTime))
                 self.data = xr.concat(timeCorrected, "time") #TODO: defrost this var (since it's hard coded)
                 self.data = self.data.sortby("time")
             # Otherwise merge them since vars should be different
@@ -218,6 +219,13 @@ class App:
             page (tkinter.Frame): page to bring 
         """
         page.tkraise()
+        if page == self.page1:
+            self.clear_canvas()
+            for node in self.nodes:
+                node.render()
+            self.canvas.update_idletasks()
+            self.draw_lines()
+
         self.curPage = page
     def canvas_motion_handler(self, event):
         """Called any time the mouse is moved on the canvas. The
@@ -269,7 +277,6 @@ class App:
                 self.selectedNodeVar.node.draggableWidget.lines[self.selectedNodeVar][nodeVar] = line
                 print(line)
                 self.canvas.tag_bind(line, '<Double-Button-1>', lambda _, out=self.selectedNodeVar, inVar=nodeVar: self.delete_line_handler(out, inVar))
-                self.canvas
                 del self.selectedNodeVar.node.draggableWidget.lines[self.selectedNodeVar]["None"]
                 nodeVar.node.draggableWidget.update_input_lines()
                 self.selectedNodeVar = None
@@ -279,12 +286,23 @@ class App:
         self.canvas.delete(outVar.node.draggableWidget.lines[outVar][inVar])
         del outVar.node.draggableWidget.lines[outVar][inVar]
         print("deleted line")
+    def draw_lines(self):
+        for node in self.nodes:
+            for out in node.outs:
+                out.node.draggableWidget.lines[out] = {}
+                for inp in out.edges:
+                    line = self.canvas.create_line(0,0,100,100, width=3)
+                    out.node.draggableWidget.lines[out][inp] = line
+                    self.canvas.tag_bind(line, '<Double-Button-1>', lambda _, out=out, inVar=inp: self.delete_line_handler(out, inVar))
+                    self.root.update_idletasks() 
+                    inp.node.draggableWidget.update_input_line(inp, line)
+                    out.node.draggableWidget.update_output_line(out, line)
     def print_canvas(self):
         print(self.sources)
     def load_canvas(self, filename = None):
         print("Loading Canvas")
         if not filename:
-            filename = askopenfilename(filetypes=[("Canvas files", "*.virgo")])
+            filename = askopenfilename(initialdir=self.configurationsPath, filetypes=[("Canvas files", "*.virgo")])
         if filename:
             with open(filename, 'r') as file:
                 print("Canvas loaded successfully.")
@@ -337,21 +355,12 @@ class App:
                     print(x,y)
                     node.draggableWidget.move_to(x,y)
                     node.set_state(n)
-                for node in self.nodes:
-                    for out in node.outs:
-                        out.node.draggableWidget.lines[out] = {}
-                        for inp in out.edges:
-                            line = self.canvas.create_line(0,0,100,100, width=3)
-                            out.node.draggableWidget.lines[out][inp] = line
-                            self.canvas.tag_bind(line, '<Double-Button-1>', lambda _, out=out, inVar=inp: self.delete_line_handler(out, inVar))
-                            self.root.update_idletasks() 
-                            inp.node.draggableWidget.update_input_line(inp, line)
-                            out.node.draggableWidget.update_output_line(out, line)
+                self.draw_lines()
 
             # except Exception as e:
             #     tk.messagebox.showerror("Error", f"Failed to load canvas: {e}")
     def save_canvas(self):
-        filename = tk.filedialog.asksaveasfilename(initialfile="canvas", defaultextension=".virgo", filetypes=[("Canvas files", "*.virgo")])
+        filename = tk.filedialog.asksaveasfilename(initialfile="canvas",initialdir=self.configurationsPath,defaultextension=".virgo", filetypes=[("Canvas files", "*.virgo")])
         if filename:
             inData, outData, nodeData = serialize_nodes(self.nodes)
             data = {

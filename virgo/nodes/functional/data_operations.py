@@ -122,7 +122,6 @@ class DimensionMeanWidget(tk.Frame):
         def function(data):
             newData = data.mean(dimName)
             print(newData)
-            newData.attrs = data.attrs
             return (newData,)
         self.node.function = function
     def get_state(self):

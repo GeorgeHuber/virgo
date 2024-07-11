@@ -51,7 +51,15 @@ class Node:
             if not inputVar.ready:
                 return
         args = [x.buffer for x in self.ins]
-        output = self.module(*args)
+        try:
+            output = self.module(*args)
+        except Exception as e:
+            print(e)
+            for inputVar in self.ins:
+                print("failed to run, resetting")
+                inputVar.ready = False
+                inputVar.buffer = None
+            return
         #TODO: type checking to make sure ins and outs align
         for out in self.outs:
             output_index = self.outs.index(out)
