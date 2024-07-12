@@ -2,7 +2,10 @@
 # $ conda create --name <env> --file <this file>
 # platform: osx-64\
 
+dask=2024.5.0
+h5netcdf=1.2.0
 matplotlib=3.8.4
+netcdf4=1.6.2
 python=3.11.9
 tk=8.6.14
 xarray=2023.6.0

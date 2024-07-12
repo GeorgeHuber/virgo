@@ -62,7 +62,7 @@ class App:
             now = time.time()
             self.load_data()
             print(f"Loaded in : {time.time() - now} seconds")
-            self.canvasPath = "/Users/grhuber/Downloads/line.virgo"
+            self.canvasPath = "configurations/2dlineplot.virgo"
             self.load_canvas(self.canvasPath)
 
     def set_main_menu(self):
@@ -185,7 +185,8 @@ class App:
             
             # Case with one file
             if len(datum) == 1:
-                self.data == datum[0]
+                self.data = datum[0]
+
             # Variables are the same so we should concat the files along time
             # TODO: allow the user to select how to handle multiple files
             elif datum[0].variables.keys() == datum[1].variables.keys():

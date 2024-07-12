@@ -1,0 +1,240 @@
+{
+    "nodes": [
+        {
+            "moduleName": "virgo.nodes.base_nodes",
+            "className": "DataSourceNode",
+            "description": null,
+            "isSource": true,
+            "x": 331,
+            "y": 537,
+            "varName": "T",
+            "ins": [],
+            "outs": [
+                0
+            ]
+        },
+        {
+            "moduleName": "virgo.nodes.base_nodes",
+            "className": "DataSourceNode",
+            "description": null,
+            "isSource": true,
+            "x": 371,
+            "y": 354,
+            "varName": "lat",
+            "ins": [],
+            "outs": [
+                1
+            ]
+        },
+        {
+            "moduleName": "virgo.nodes.base_nodes",
+            "className": "DataSourceNode",
+            "description": null,
+            "isSource": true,
+            "x": 385,
+            "y": 158,
+            "varName": "lon",
+            "ins": [],
+            "outs": [
+                2
+            ]
+        },
+        {
+            "moduleName": "virgo.nodes.functional.data_operations",
+            "className": "DimensionIndex",
+            "description": "Index a dimension",
+            "isSource": false,
+            "x": 667,
+            "y": 629,
+            "varName": "time",
+            "index": "0.0",
+            "ins": [
+                0
+            ],
+            "outs": [
+                3
+            ]
+        },
+        {
+            "moduleName": "virgo.nodes.functional.data_operations",
+            "className": "DimensionIndex",
+            "description": "Index a dimension",
+            "isSource": false,
+            "x": 509,
+            "y": 657,
+            "varName": "lev",
+            "index": "1000.0",
+            "ins": [
+                1
+            ],
+            "outs": [
+                4
+            ]
+        },
+        {
+            "moduleName": "virgo.nodes.graphical.example_graphs",
+            "className": "SimpleColorMesh",
+            "description": "Color Mesh Plot",
+            "isSource": false,
+            "x": 1024,
+            "y": 598,
+            "ins": [
+                2,
+                3,
+                4
+            ],
+            "outs": []
+        },
+        {
+            "moduleName": "virgo.nodes.functional.data_operations",
+            "className": "DimensionSlice",
+            "description": "Slice a dimension",
+            "isSource": false,
+            "x": 823,
+            "y": 341,
+            "varName": "lat",
+            "start": "-90.0",
+            "stop": "90.0",
+            "step": "1",
+            "ins": [
+                5,
+                6
+            ],
+            "outs": [
+                5,
+                6
+            ]
+        },
+        {
+            "moduleName": "virgo.nodes.graphical.example_graphs",
+            "className": "SimpleContourPlot",
+            "description": "Contour Plot",
+            "isSource": false,
+            "x": 1004,
+            "y": 230,
+            "ins": [
+                7,
+                8,
+                9
+            ],
+            "outs": []
+        }
+    ],
+    "ins": [
+        {
+            "description": "data",
+            "parent": 3,
+            "edges": [
+                4
+            ]
+        },
+        {
+            "description": "data",
+            "parent": 4,
+            "edges": [
+                0
+            ]
+        },
+        {
+            "description": "x-axis",
+            "parent": 5,
+            "edges": []
+        },
+        {
+            "description": "y-axis",
+            "parent": 5,
+            "edges": []
+        },
+        {
+            "description": "var to plot",
+            "parent": 5,
+            "edges": []
+        },
+        {
+            "description": "axis",
+            "parent": 6,
+            "edges": [
+                1
+            ]
+        },
+        {
+            "description": "data",
+            "parent": 6,
+            "edges": [
+                3
+            ]
+        },
+        {
+            "description": "x-axis",
+            "parent": 7,
+            "edges": [
+                2
+            ]
+        },
+        {
+            "description": "y-axis",
+            "parent": 7,
+            "edges": [
+                5
+            ]
+        },
+        {
+            "description": "data",
+            "parent": 7,
+            "edges": [
+                6
+            ]
+        }
+    ],
+    "outs": [
+        {
+            "description": "T",
+            "parent": 0,
+            "edges": [
+                1
+            ]
+        },
+        {
+            "description": "lat",
+            "parent": 1,
+            "edges": [
+                5
+            ]
+        },
+        {
+            "description": "lon",
+            "parent": 2,
+            "edges": [
+                7
+            ]
+        },
+        {
+            "description": "sliced data",
+            "parent": 3,
+            "edges": [
+                6
+            ]
+        },
+        {
+            "description": "sliced data",
+            "parent": 4,
+            "edges": [
+                0
+            ]
+        },
+        {
+            "description": "sliced axis",
+            "parent": 6,
+            "edges": [
+                8
+            ]
+        },
+        {
+            "description": "sliced data",
+            "parent": 6,
+            "edges": [
+                9
+            ]
+        }
+    ]
+}

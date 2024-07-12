@@ -9,7 +9,7 @@ import numpy as np
 """
 These widgets are all a little more tricky because they require dropdowns"""
 
-class DimensionSliceWidget(tk.Frame):
+class DimensionIndexWidget(tk.Frame):
     def __init__(self, parent, node, app, **kwargs):
         super().__init__(parent, **kwargs)
         self.app = app
@@ -18,10 +18,11 @@ class DimensionSliceWidget(tk.Frame):
         self.dimName = tk.StringVar()
         self.dimValue = tk.StringVar()
         self.dimSelect = ttk.OptionMenu(self, self.dimName)
+        self.dimName.trace("w", self.set_dim_handler)
         self.exclude = [self.dimSelect]
         self.dimSelect.grid()
         self.dimValueSelect = ttk.Combobox(self, values=[], textvariable=self.dimValue, width=5)
-        self.dimValueSelect.bind("<<ComboboxSelected>>", self.set_dim_value_handler)
+        self.dimValue.trace("w", self.set_dim_value_handler)
         self.dimValueSelect.grid()
         self.dimensions = []
         # Update dropdown options
@@ -32,14 +33,16 @@ class DimensionSliceWidget(tk.Frame):
         self.dimensions = list(self.app.data.dims.keys())
         self.dimSelect['menu'].delete(0, 'end')
        
-        for dimName in self.dimensions:
-            self.dimSelect['menu'].add_command(label=dimName, command=lambda x=dimName: self.set_dim_handler(x))
         dimName = self.dimName.get()
         if dimName not in list(self.dimensions):
             dimName = list(self.dimensions)[0]
-        self.set_dim_handler(dimName)
-    def set_dim_handler(self, dimName):
-        self.dimName.set(dimName)
+        self.dimSelect.set_menu(dimName, *self.dimensions)
+        self.set_dim_handler(dimName=dimName)
+    def set_dim_handler(self, varName=None, idx=None, op=None, dimName=None):
+        if dimName:
+            self.dimName.set(dimName)
+        else:
+            dimName = self.dimName.get()
         # dim = self.dimensions.index(dimName)
         #TODO get passed var
         self.dimValueSelect["values"] = [str(x.data) for x in self.app.data[dimName]]
@@ -47,12 +50,16 @@ class DimensionSliceWidget(tk.Frame):
             self.dimValue.set(self.dimValueSelect["values"][0])
         self.set_dim_value_handler()
 
-    def set_dim_value_handler(self, event=None):
+    def set_dim_value_handler(self, varName=None, idx=None, op=None):
         dimName = self.dimName.get()
-        if event:
-            self.dimValue.set(event.widget.get())
         dimVal = self.dimValue.get()
-        dimIdx = self.dimValueSelect["values"].index(dimVal)
+        try:
+            dimIdx = utils.index(self.dimValueSelect["values"], dimVal, lambda x, y: float(x)==float(y))
+            if dimIdx == -1:
+                return
+        except Exception:
+            return
+        self.dimValue.set(str(float(dimVal)))
         def function(data):
             print("before slice", data.dims)
             idx = {}
@@ -74,13 +81,131 @@ class DimensionSliceWidget(tk.Frame):
 
 
 
-class DimensionSlice(base_nodes.FunctionalNode):
+class DimensionIndex(base_nodes.FunctionalNode):
     description = "Index a dimension"
     def __init__(self, *args, **kwargs):
         super().__init__(*args, 
                          **kwargs,
                          ins=[graph.Input(self, None, description="data")],
                          outs=[graph.Output(self, None, description="sliced data")],
+                        )
+    def render(self):
+        self.draggableWidget = graph.DraggableWidget(self, app=self.app, widgetClass=DimensionIndexWidget)
+    def on_data_change(self):
+        if self.draggableWidget:
+            self.draggableWidget.widget.on_data_change()
+
+
+class DimensionSliceWidget(tk.Frame):
+    #TODO: Support slices of nondefault axis
+    def __init__(self, parent, node, app, **kwargs):
+        super().__init__(parent, **kwargs)
+        self.app = app
+        self.node = node
+        ttk.Label(self, text="Slice Dimension").grid()
+        self.dimName = tk.StringVar()
+        self.dimStart = tk.StringVar()
+        self.dimStop = tk.StringVar()
+        self.dimStep = tk.StringVar()
+        self.dimSelect = ttk.OptionMenu(self, self.dimName)
+        self.dimName.trace("w", self.set_dim_handler)
+        self.exclude = [self.dimSelect]
+        self.dimSelect.grid()
+        ttk.Label(self, text="start").grid()
+        self.dimStartSelect = ttk.Combobox(self, values=[], textvariable=self.dimStart, width=5)
+        self.dimStart.trace("w", self.set_slice_handler)
+        self.dimStartSelect.grid()
+        ttk.Label(self, text="stop").grid()
+        self.dimStopSelect = ttk.Combobox(self, values=[], textvariable=self.dimStop, width=5)
+        self.dimStop.trace("w", self.set_slice_handler)
+        self.dimStopSelect.grid()
+        ttk.Label(self, text="step").grid()
+        self.dimStepSelect = ttk.Combobox(self, values=[], textvariable=self.dimStep, width=5)
+        self.dimStep.trace("w", self.set_slice_handler)
+        self.dimStepSelect.grid()
+        self.dimensions = []
+        # Update dropdown options
+        self.on_data_change()
+    def on_data_change(self):
+        if not self.app.data:
+            return
+        self.dimensions = list(self.app.data.dims.keys())
+        self.dimSelect['menu'].delete(0, 'end')
+       
+        dimName = self.dimName.get()
+        if dimName not in list(self.dimensions):
+            dimName = list(self.dimensions)[0]
+        self.dimSelect.set_menu(dimName, *self.dimensions)
+        self.set_dim_handler(dimName=dimName)
+    def set_dim_handler(self, varName=None, idx=None, op=None, dimName=None):
+        if dimName:
+            self.dimName.set(dimName)
+        else:
+            dimName = self.dimName.get()
+        # dim = self.dimensions.index(dimName)
+        #TODO get passed var
+        indicies = [str(x.data) for x in self.app.data[dimName]]
+        self.dimStartSelect["values"] = indicies
+        self.dimStopSelect["values"] = indicies
+        self.dimStepSelect["values"] = [str(i) for i in range(1, len(indicies))]
+        if self.dimStart.get() not in self.dimStartSelect["values"]:
+            self.dimStart.set(self.dimStartSelect["values"][0])
+        if self.dimStop.get() not in self.dimStopSelect["values"]:
+            self.dimStop.set(self.dimStopSelect["values"][0])
+        if self.dimStep.get() not in self.dimStepSelect["values"]:
+            self.dimStep.set(self.dimStepSelect["values"][0])
+        self.set_slice_handler()
+
+    def set_slice_handler(self, varName=None, idx=None, op=None):
+        dimName = self.dimName.get()
+        dimStart = self.dimStart.get()
+        dimStop = self.dimStop.get()
+        dimStep = self.dimStep.get()
+        #TODO: Dont chekc start, stop, step every time only the one that changes
+        try:
+            dimStart = utils.index(self.dimStartSelect["values"], dimStart, lambda x, y: float(x)==float(y))
+            if dimStart == -1:
+                return
+            dimStop = utils.index(self.dimStopSelect["values"], dimStop, lambda x, y: float(x)==float(y))
+            if dimStop == -1:
+                return
+            dimStep = int(dimStep)
+        except Exception:
+            return
+        #TODO: check that this passes metadata correctly
+        def function(axis, data):
+            print("before actual slice", data.dims)
+            idx = {}
+            idx[dimName] = slice(dimStart, dimStop, dimStep)
+            slicedData = data[idx]
+            slicedAxis = axis[idx]
+            print("after slices", slicedData.dims)
+            return (slicedAxis, slicedData)
+        self.node.function = function
+    def get_state(self):
+        state = {
+            "varName": self.dimName.get(),
+            "start": self.dimStart.get(),
+            "stop": self.dimStop.get(),
+            "step": self.dimStep.get()
+        }
+        return state
+    def set_state(self, state):
+        self.dimName.set(state["varName"])
+        self.dimStart.set(state["start"])
+        self.dimStop.set(state["stop"])
+        self.dimStep.set(state["step"])
+        self.on_data_change()
+
+
+
+class DimensionSlice(base_nodes.FunctionalNode):
+    description = "Slice a dimension"
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, 
+                         **kwargs,
+                         ins=[graph.Input(self, None, description="axis"), graph.Input(self, None, description="data")],
+                         outs=[graph.Output(self, None, description="sliced axis"), graph.Output(self, None, description="sliced data")],
                         )
     def render(self):
         self.draggableWidget = graph.DraggableWidget(self, app=self.app, widgetClass=DimensionSliceWidget)

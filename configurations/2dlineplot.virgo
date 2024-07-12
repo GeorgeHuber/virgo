@@ -1,0 +1,182 @@
+{
+    "nodes": [
+        {
+            "moduleName": "virgo.nodes.functional.data_operations",
+            "className": "DimensionIndex",
+            "description": "Index a dimension",
+            "isSource": false,
+            "x": 804,
+            "y": 572,
+            "varName": "lat",
+            "index": "0",
+            "ins": [
+                0
+            ],
+            "outs": [
+                0
+            ]
+        },
+        {
+            "moduleName": "virgo.nodes.functional.data_operations",
+            "className": "DimensionIndex",
+            "description": "Index a dimension",
+            "isSource": false,
+            "x": 582,
+            "y": 583,
+            "varName": "lon",
+            "index": "0",
+            "ins": [
+                1
+            ],
+            "outs": [
+                1
+            ]
+        },
+        {
+            "moduleName": "virgo.nodes.base_nodes",
+            "className": "DataSourceNode",
+            "description": null,
+            "isSource": true,
+            "x": 408,
+            "y": 587,
+            "varName": "T",
+            "ins": [],
+            "outs": [
+                2
+            ]
+        },
+        {
+            "moduleName": "virgo.nodes.base_nodes",
+            "className": "DataSourceNode",
+            "description": null,
+            "isSource": true,
+            "x": 364,
+            "y": 382,
+            "varName": "lon",
+            "ins": [],
+            "outs": [
+                3
+            ]
+        },
+        {
+            "moduleName": "virgo.nodes.base_nodes",
+            "className": "DataSourceNode",
+            "description": null,
+            "isSource": true,
+            "x": 404,
+            "y": 158,
+            "varName": "time",
+            "ins": [],
+            "outs": [
+                4
+            ]
+        },
+        {
+            "moduleName": "virgo.nodes.graphical.example_graphs",
+            "className": "Simple2D",
+            "description": "2Var-Line Plot",
+            "isSource": false,
+            "x": 1062,
+            "y": 326,
+            "ins": [
+                2,
+                3
+            ],
+            "outs": []
+        },
+        {
+            "moduleName": "virgo.nodes.functional.data_operations",
+            "className": "DimensionMean",
+            "description": "Take the mean of a dimension",
+            "isSource": false,
+            "x": 964,
+            "y": 533,
+            "varName": "lev",
+            "ins": [
+                4
+            ],
+            "outs": [
+                5
+            ]
+        }
+    ],
+    "ins": [
+        {
+            "description": "data",
+            "parent": 0,
+            "edges": [
+                1
+            ]
+        },
+        {
+            "description": "data",
+            "parent": 1,
+            "edges": [
+                2
+            ]
+        },
+        {
+            "description": "x",
+            "parent": 5,
+            "edges": [
+                4
+            ]
+        },
+        {
+            "description": "y",
+            "parent": 5,
+            "edges": [
+                5
+            ]
+        },
+        {
+            "description": "data",
+            "parent": 6,
+            "edges": [
+                0
+            ]
+        }
+    ],
+    "outs": [
+        {
+            "description": "sliced data",
+            "parent": 0,
+            "edges": [
+                4
+            ]
+        },
+        {
+            "description": "sliced data",
+            "parent": 1,
+            "edges": [
+                0
+            ]
+        },
+        {
+            "description": "T",
+            "parent": 2,
+            "edges": [
+                1
+            ]
+        },
+        {
+            "description": "lon",
+            "parent": 3,
+            "edges": []
+        },
+        {
+            "description": "time",
+            "parent": 4,
+            "edges": [
+                2
+            ]
+        },
+        {
+            "description": "augmented data",
+            "parent": 6,
+            "edges": [
+                3
+            ]
+        }
+    ]
+}

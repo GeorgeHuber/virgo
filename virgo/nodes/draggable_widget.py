@@ -95,7 +95,7 @@ class DraggableWidget(tk.Frame):
         w, h =self.outButtons[outVar].winfo_width() ,  self.outButtons[outVar].winfo_height()
         x = bx - wx + (w)*0.8
         y = by - wy + (h)/2
-        self.canvas.coords(lineId, x, y, curCoords[2:])
+        self.canvas.coords(lineId, x, y, *curCoords[2:])
         # print(wx,wy, bx, by, w, h)
     def update_input_lines(self):
         for inVar in self.node.ins:
@@ -106,11 +106,11 @@ class DraggableWidget(tk.Frame):
         curCoords = self.canvas.coords(lineId)
         wx, wy = self.canvas.winfo_rootx(), self.canvas.winfo_rooty()
         bx, by = self.inButtons[inVar].winfo_rootx(), self.inButtons[inVar].winfo_rooty()
-        w, h =self.inButtons[inVar].winfo_width() ,  self.inButtons[inVar].winfo_height()
+        w, h = self.inButtons[inVar].winfo_width() ,  self.inButtons[inVar].winfo_height()
         x = bx - wx + (w)*0.2
         y = by - wy + (h)/2
         # print(wx,wy, bx, by, w, h)
-        self.canvas.coords(lineId, curCoords[:2], x, y)
+        self.canvas.coords(lineId, *curCoords[:2], x, y)
     def move_to(self, x, y):
         self.canvas.moveto(self.id, x, y)
 
