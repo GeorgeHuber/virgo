@@ -159,5 +159,8 @@
                 0
             ]
         }
-    ]
+    ],
+    "metadata":{
+        "title":"Color Map of temperature"
+    }
 }

@@ -12,8 +12,9 @@ import os
 import json, importlib, datetime, time, pathlib
 
 from virgo import utils, graph
-from virgo.nodes import base_nodes, graphical, functional
 from virgo.serialization import serialize_nodes
+from virgo.ui.pages import canvas_page, data_page
+from virgo.ui import style
 DEBUG = os.getenv('DEBUG') == "True"
 
 
@@ -25,18 +26,14 @@ class App:
             root (tkinter.Tk): root tkinter instance
         """
         self.root = root
+        self.style = style.build_style()
         self.root.geometry("1200x900")
-        # TODO: conn
-        # style = ttk.Style()
-        # style.configure('TFrame', background="#0c0",borderwidth="2")
-        # style.configure('TLabel', background="#0c0",foreground="green")
+        
         self.root.title("Panopoly who?")
 
         self.root.grid_columnconfigure(0, weight=1)
         self.root.grid_rowconfigure(0, weight=1)
         self.root.grid_propagate(False)
-        self.page1 = None
-        self.page2 = None
         self.curPage = None
         self.selectedNodeVar = None
 
@@ -47,16 +44,19 @@ class App:
         self.sources = []
         self.nodes = []
 
-        self.create_canvas_page()
-        self.create_data_view_page()
+        self.pages = [
+            canvas_page.Page(self),
+            data_page.Page(self)
+        ]
+
         self.set_main_menu()
-        self.set_active_page(self.page1)
+        self.set_active_page(0)
 
         if DEBUG:
             self.filePaths.append("/Users/grhuber/Downloads/High-01-29.geosgcm_prog.2018227.nc4")
             self.filePaths = [
                 "/Users/grhuber/Downloads/GEOS_DATA/Start_Date_2018-01-29/High-01-29.geosgcm_prog.20180207.nc4",
-                "/Users/grhuber/Downloads/GEOS_DATA/Start_Date_2018-01-29/High-01-29.geosgcm_prog.20180206.nc4"
+                # "/Users/grhuber/Downloads/GEOS_DATA/Start_Date_2018-01-29/High-01-29.geosgcm_prog.20180206.nc4"
             ]
             
             now = time.time()
@@ -78,8 +78,8 @@ class App:
         self.menuBar.add_cascade(label="File", menu=self.fileMenu)
 
         self.windowMenu = tk.Menu(self.menuBar, tearoff=0)
-        self.windowMenu.add_command(label="Canvas", command=lambda: self.set_active_page(self.page1))
-        self.windowMenu.add_command(label="Data", command=lambda: self.set_active_page(self.page2))
+        for i, page in enumerate(self.pages):
+            self.windowMenu.add_command(label=page.label, command=lambda i=i: self.set_active_page(i))
         self.menuBar.add_cascade(label="Window", menu=self.windowMenu)
 
         self.canvasMenu = tk.Menu(self.menuBar, tearoff=0)
@@ -91,39 +91,6 @@ class App:
 
         self.root.config(menu=self.menuBar)
 
-    def create_canvas_page(self):
-        self.page1 = ttk.Frame(self.root)
-        self.page1.grid(column=0, row=0,sticky ="nsew")
-        
-        self.page1.grid_columnconfigure(0, weight=1,uniform="page1")
-        self.page1.grid_columnconfigure(1, weight=3,uniform="page1")
-        self.page1.grid_rowconfigure(0, weight=1)
-        self.canvas = tk.Canvas(self.page1, highlightbackground="black", highlightthickness=1)
-        self.canvas.grid(column=1, row=0, sticky="nsew")
-
-        self.canvas.bind('<Motion>', self.canvas_motion_handler)
-        self.canvas.bind('<ButtonPress-1>', self.canvas_click_handler)
-
-        self.widgetMenu = ttk.Frame(self.page1, style="TFrame")
-        self.widgetMenu.grid(column=0, row=0, sticky="nsew")
-        ttk.Label(self.canvas, text="Panopoly The Sequel", padding=10).grid()
-        ttk.Label(self.canvas, text="Use the top menu to open a file to get started").grid()
-        
-        #List of different widgets to add to the canvas
-        ttk.Label(self.widgetMenu, text="Data:").grid()
-        ttk.Button(self.widgetMenu, text="Add a Data Source", command=lambda x=base_nodes.DataSourceNode: self.add_source_node_to_canvas(x)).grid()
-
-        ttk.Label(self.widgetMenu, text="Graph Type:").grid()
-        for nodeType in graphical.__all__:
-            ttk.Button(self.widgetMenu, text="add {}:".format(nodeType.description), command=lambda x=nodeType: self.add_node_to_canvas(x)).grid()
-
-
-        ttk.Label(self.widgetMenu, text="Functions:").grid()
-        for nodeType in functional.__all__:
-            ttk.Button(self.widgetMenu, text="{}".format(nodeType.description), command=lambda x=nodeType: self.add_node_to_canvas(x)).grid()
-
-        ttk.Button(self.widgetMenu, text="Run Canvas", command=self.run_canvas).grid(pady=20)
-        ttk.Button(self.widgetMenu, text="Clear Canvas", command=self.clear_canvas).grid(pady=20)
 
     def add_node_to_canvas(self, nodeType):
         n = nodeType(self)
@@ -143,29 +110,6 @@ class App:
         self.canvas.delete('all')
     def update_canvas_page(self):
         pass
-    
-    def create_data_view_page(self):
-        if self.page2:
-            utils.destroy_children(self.page2)
-        else:
-            self.page2 = ttk.Frame(self.root)
-            self.page2.grid(column=0, row=0,sticky ="nsew")
-            # self.page2.configure(yscrollcommand=ttk.Scrollbar(self.page2).set)
-        # TODO: fix window management adn the current variable
-        ttk.Label(self.page2, text="Data Properties", padding=10).grid(column=0, row=0)
-        ttk.Label(self.page2, text="Metadata").grid()
-        if self.data:
-            for property in self.data.attrs:
-                ttk.Label(self.page2, text=property).grid()
-                ttk.Label(self.page2, text=self.data.attrs[property]).grid()
-        ttk.Label(self.page2, text="Variables").grid()
-        if self.data:
-            for variable in self.data.variables.keys():
-                ttk.Label(self.page2, text=variable).grid()
-                try:
-                    ttk.Label(self.page2, text=self.data.variables[variable].attrs.long_name).grid()
-                except:
-                    pass
 
     def select_file(self):
         """Selects a file via os specific interface. See also: load data
@@ -208,7 +152,10 @@ class App:
             tk.messagebox.showerror("Error", f"Failed to load NetCDF file: {e}")
             return
         self.update_canvas_page()
-        self.create_data_view_page()
+        self.pages[1].destroy()
+        self.pages[1] = data_page.Page(self)
+
+        self.set_active_page(0)
         for node in self.nodes:
             if hasattr(node, "on_data_change"):
                 node.on_data_change()
@@ -219,8 +166,8 @@ class App:
         Args:
             page (tkinter.Frame): page to bring 
         """
-        page.tkraise()
-        if page == self.page1:
+        self.pages[page].tkraise()
+        if page == 0:
             self.clear_canvas()
             for node in self.nodes:
                 node.render()
@@ -242,11 +189,11 @@ class App:
         if self.selectedNodeVar not in self.selectedNodeVar.node.draggableWidget.lines:
             lines = self.selectedNodeVar.node.draggableWidget.lines[self.selectedNodeVar] = {}
             #TODO: Add delete handler on double click
-            lines["None"] = self.canvas.create_line(0, 0, x, y, width=3)
+            lines["None"] = self.canvas.create_line(0, 0, x, y, width=3, arrow=tk.LAST)
         else:
             lines = self.selectedNodeVar.node.draggableWidget.lines[self.selectedNodeVar]
             if "None" not in lines:
-                lines["None"] = self.canvas.create_line(0, 0, x, y, width=3)
+                lines["None"] = self.canvas.create_line(0, 0, x, y, width=3, arrow=tk.LAST)
             lineId = lines["None"]
             newCoords = self.canvas.coords(lineId)[:2] + [x, y]
             self.canvas.coords(lineId, *newCoords)
@@ -292,7 +239,7 @@ class App:
             for out in node.outs:
                 out.node.draggableWidget.lines[out] = {}
                 for inp in out.edges:
-                    line = self.canvas.create_line(0,0,100,100, width=3)
+                    line = self.canvas.create_line(0,0,100,100, width=3, arrow=tk.LAST)
                     out.node.draggableWidget.lines[out][inp] = line
                     self.canvas.tag_bind(line, '<Double-Button-1>', lambda _, out=out, inVar=inp: self.delete_line_handler(out, inVar))
                     self.root.update_idletasks() 
@@ -361,13 +308,21 @@ class App:
             # except Exception as e:
             #     tk.messagebox.showerror("Error", f"Failed to load canvas: {e}")
     def save_canvas(self):
+        title = tk.simpledialog.askstring(title="Canvas Metadata",
+                                  prompt="Enter a title:")
+        description = tk.simpledialog.askstring(title="Canvas Metadata",
+                                  prompt="Enter a description:")
         filename = tk.filedialog.asksaveasfilename(initialfile="canvas",initialdir=self.configurationsPath,defaultextension=".virgo", filetypes=[("Canvas files", "*.virgo")])
         if filename:
             inData, outData, nodeData = serialize_nodes(self.nodes)
             data = {
                 "nodes":nodeData,
                 "ins":inData,
-                "outs":outData
+                "outs":outData,
+                "metadata": {
+                    "title": title,
+                    "description":description
+                    }
                 }
 
             with open(filename, 'w') as file:

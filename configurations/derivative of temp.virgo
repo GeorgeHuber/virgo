@@ -316,5 +316,8 @@
                 6
             ]
         }
-    ]
+    ],
+    "metadata":{
+        "title":"Plot gradients"
+    }
 }

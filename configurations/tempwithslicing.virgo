@@ -236,5 +236,8 @@
                 9
             ]
         }
-    ]
+    ],
+    "metadata":{
+        "title":"Sliced plot of temperature"
+    }
 }

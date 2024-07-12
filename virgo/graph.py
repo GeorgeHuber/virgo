@@ -1,7 +1,7 @@
 import tkinter as tk
 from tkinter import ttk
 from virgo import utils, functions
-from virgo.nodes.draggable_widget import DraggableWidget
+from virgo.ui.components.draggable_widget import DraggableWidget
 
 class NodeVar:
     def __init__(self, parent, type, description):

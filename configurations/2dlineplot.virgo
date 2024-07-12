@@ -178,5 +178,8 @@
                 3
             ]
         }
-    ]
+    ],
+    "metadata":{
+        "title":"Line plot data"
+    }
 }

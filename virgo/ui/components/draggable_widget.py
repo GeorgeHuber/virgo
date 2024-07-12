@@ -1,9 +1,11 @@
 import tkinter as tk
 from tkinter import ttk
 from virgo import utils
+from virgo.ui.components import node_buttons
+
 class DraggableWidget(tk.Frame):
     def __init__(self, node, app, widgetClass=None, **kwargs):
-        super().__init__(**kwargs, highlightthickness=1, highlightbackground="black")
+        super().__init__(highlightthickness=2, highlightbackground="white", **kwargs)
         self.start_pos = 0, 0
         self.app = app
         self.canvas = self.app.canvas
@@ -41,34 +43,36 @@ class DraggableWidget(tk.Frame):
             self.widget.grid(row=0, column=0)
         else:
             ttk.Label(self,text="empty widget").grid(row=0, column=0)
-        self.varFrame = ttk.Frame(self)
+        self.varFrame = tk.Frame(self)
         self.varFrame.grid_columnconfigure(0,weight=1)
-        self.varFrame.grid_columnconfigure(2, weight=1)
+
         self.set_ins()
         self.set_outs()
         self.varFrame.grid(sticky ="nsew")
     def set_ins(self):
         if len(self.node.ins):
-            inputBox = ttk.Frame(self.varFrame)
+            inputBox = tk.Frame(self.varFrame)
+            inputBox.grid_columnconfigure(0, weight=1)
             ttk.Label(inputBox, text="Inputs").grid()
             for inVar in self.node.ins:
-                inButton = ttk.Button(inputBox, text="<-{}".format(inVar.description), command=lambda x=inVar:self.app.node_select_handler(x))
+                inButton = node_buttons.InButton(inputBox, inVar.description, inVar, self.app)
                 self.inButtons[inVar] = inButton
-                inButton.grid()
-            inputBox.grid(column=0, row=0)
+                inButton.grid(sticky="ew")
+            inputBox.grid(column=0, row=0, sticky="ew")
     def set_outs(self):
         if len(self.node.outs):
-            outputBox = ttk.Frame(self.varFrame)
+            outputBox = tk.Frame(self.varFrame)
             ttk.Label(outputBox, text="Outputs").grid()
+            outputBox.grid_columnconfigure(0, weight=1)
             for out in self.node.outs:
-                outButton = ttk.Button(outputBox, text="{}->".format(out.description), command=lambda x=out:self.app.node_select_handler(x))
+                outButton = node_buttons.OutButton(outputBox, out.description, out, self.app)
                 self.outButtons[out] = outButton
-                outButton.grid()
-            outputBox.grid(column=0, row=1)
+                outButton.grid(sticky="ew")
+            outputBox.grid(column=0, row=1, sticky="ew")
     def update_outs(self):
         for out in self.node.outs:
             button =  self.outButtons[out]
-            button["text"] = "{}->".format(out.description)
+            button.setText(out.description)
     def on_drag_start(self, event):
         rect = self.canvas.bbox(self.id)
         self.canvas.addtag_withtag("drag", self.id)
@@ -93,7 +97,7 @@ class DraggableWidget(tk.Frame):
         wx, wy = self.canvas.winfo_rootx(), self.canvas.winfo_rooty()
         bx, by = self.outButtons[outVar].winfo_rootx(), self.outButtons[outVar].winfo_rooty()
         w, h =self.outButtons[outVar].winfo_width() ,  self.outButtons[outVar].winfo_height()
-        x = bx - wx + (w)*0.8
+        x = bx - wx + (w)*1 + 4
         y = by - wy + (h)/2
         self.canvas.coords(lineId, x, y, *curCoords[2:])
         # print(wx,wy, bx, by, w, h)
@@ -107,7 +111,7 @@ class DraggableWidget(tk.Frame):
         wx, wy = self.canvas.winfo_rootx(), self.canvas.winfo_rooty()
         bx, by = self.inButtons[inVar].winfo_rootx(), self.inButtons[inVar].winfo_rooty()
         w, h = self.inButtons[inVar].winfo_width() ,  self.inButtons[inVar].winfo_height()
-        x = bx - wx + (w)*0.2
+        x = bx - wx + (w)*0 - 4
         y = by - wy + (h)/2
         # print(wx,wy, bx, by, w, h)
         self.canvas.coords(lineId, *curCoords[:2], x, y)
