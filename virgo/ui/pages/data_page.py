@@ -22,9 +22,11 @@ def Page(self: App):
     ttk.Label(page, text="Variables").grid()
     if self.data:
         for variable in self.data.variables.keys():
-            ttk.Label(page, text=variable).grid()
+            variableBox = ttk.Frame(page)
+            variableBox.grid()
+            ttk.Label(variableBox, text=variable).grid(row =0, column=0)
             try:
-                ttk.Label(page, text=self.data.variables[variable].attrs.long_name).grid()
+                ttk.Label(variableBox, text=self.data.variables[variable].attrs["long_name"]).grid(row=0, column=1)
             except:
                 pass
     return page

@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from tkinter import ttk
 import tkinter as tk
-import os, json
+import os, json, PIL
 
 from virgo.nodes import base_nodes, graphical, functional
 
@@ -21,7 +21,8 @@ def Page(self: App):
     page.grid_rowconfigure(0, weight=1)
     self.canvas = tk.Canvas(page, highlightbackground="black",highlightthickness=1)
     self.canvas.grid(column=1, row=0, sticky="nsew")
-
+    self.canvas.grid_rowconfigure(0, weight=1)
+    self.canvas.grid_columnconfigure(0, weight=1)
     self.canvas.bind('<Motion>', self.canvas_motion_handler)
     self.canvas.bind('<ButtonPress-1>', self.canvas_click_handler)
 
@@ -41,9 +42,12 @@ def Page(self: App):
     self.widgetMenu.grid_columnconfigure(0, weight=1)
     widgets = ttk.Frame(self.widgetMenu)
     widgets.grid(column=0, row=0, sticky="nsew")
-    ttk.Label(self.canvas, text="Panopoly The Sequel").grid()
-    ttk.Label(self.canvas, text="Use the top menu to open a file to get started").grid()
-    
+    infoBox = ttk.Frame(self.canvas)
+    infoBox.grid()
+    ttk.Label(infoBox, text="Welcome to Virgo").grid()
+    ttk.Label(infoBox, text="Use the top menu to open a file and get started").grid()
+    self.canvasIcon = PIL.ImageTk.PhotoImage(self.iconBase.resize((64, 64)))
+    ttk.Label(self.canvas, image=self.canvasIcon, width=10).grid(row=0, column=0, sticky="ne", padx=10, pady=10)
     #List of different widgets to add to the canvas
     ttk.Label(widgets, text="Data:", style="H3.TLabel").grid()
     ttk.Button(widgets, text="Add a Data Source", command=lambda x=base_nodes.DataSourceNode: self.add_source_node_to_canvas(x)).grid()

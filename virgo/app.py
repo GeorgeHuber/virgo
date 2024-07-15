@@ -2,6 +2,8 @@ from tkinter import ttk
 import tkinter as tk
 from tkinter.filedialog import askopenfilenames, askopenfilename
 
+import PIL.Image
+import PIL.ImageTk
 import matplotlib
 from matplotlib.figure import Figure 
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
@@ -9,7 +11,7 @@ from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationTool
 import numpy as np
 import xarray as xr
 import os
-import json, importlib, datetime, time, pathlib
+import json, importlib, datetime, time, pathlib, PIL
 
 from virgo import utils, graph
 from virgo.serialization import serialize_nodes
@@ -28,8 +30,12 @@ class App:
         self.root = root
         self.style = style.build_style()
         self.root.geometry("1200x900")
+        # self.root.iconbitmap("virgo/virgo.ico")
+        self.iconBase = PIL.Image.open("virgo/virgo.gif")
+        self.icon = PIL.ImageTk.PhotoImage(self.iconBase)
+        self.root.iconphoto(True, self.icon)
         
-        self.root.title("Panopoly who?")
+        self.root.title("Virgo")
 
         self.root.grid_columnconfigure(0, weight=1)
         self.root.grid_rowconfigure(0, weight=1)
@@ -234,6 +240,25 @@ class App:
         self.canvas.delete(outVar.node.draggableWidget.lines[outVar][inVar])
         del outVar.node.draggableWidget.lines[outVar][inVar]
         print("deleted line")
+    def delete_node_handler(self, node):
+        print("deleting node")
+        if node in self.sources:
+            self.sources.remove(node)
+        self.nodes.remove(node)
+        node.draggableWidget.destroy()
+        for out in node.outs:
+            for inp in out.edges:
+                inp.edges.remove(out)
+                line = out.node.draggableWidget.lines[out][inp]
+                self.canvas.delete(line)
+                del line
+        for inp in node.ins:
+            for out in inp.edges:
+                out.edges.remove(inp)
+                line = out.node.draggableWidget.lines[out][inp]
+                self.canvas.delete(line)
+                del line
+
     def draw_lines(self):
         for node in self.nodes:
             for out in node.outs:

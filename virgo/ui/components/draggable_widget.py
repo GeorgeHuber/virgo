@@ -21,6 +21,7 @@ class DraggableWidget(tk.Frame):
         self.bind_class(self.id, "<ButtonPress-1>", self.on_drag_start)
         self.bind_class(self.id, "<ButtonRelease-1>", self.on_drag_stop)
         self.bind_class(self.id, "<B1-Motion>", self.on_drag_motion)
+        self.bind_class(self.id, "<Double-Button-1>", self.on_double_click)
 
         if self.widget and hasattr(self.widget, 'exclude'):
             utils.bind_all_recur(self, exclude=self.widget.exclude)
@@ -88,6 +89,8 @@ class DraggableWidget(tk.Frame):
         self.canvas.moveto("drag", x, y)
         self.update_output_lines()
         self.update_input_lines()
+    def on_double_click(self, event):
+        self.app.delete_node_handler(self.node)
     def update_output_lines(self):
         for outVar in self.lines.keys():
             for lineId in self.lines[outVar].values():
