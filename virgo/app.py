@@ -4,7 +4,7 @@ from tkinter.filedialog import askopenfilenames, askopenfilename
 
 import matplotlib
 from matplotlib.figure import Figure 
-from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg)
+from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
 
 import numpy as np
 import xarray as xr

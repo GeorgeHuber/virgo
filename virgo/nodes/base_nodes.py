@@ -3,7 +3,7 @@ from tkinter import ttk
 
 from virgo import functions, graph, utils
 from matplotlib.figure import Figure 
-from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg)
+from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
 
 """
 Widgets are visuals passed to the Draggable node
@@ -92,9 +92,12 @@ class GraphNode(graph.Node):
         fig = Figure(figsize = (8, 8), 
                  dpi = 100) 
         self.plot(*args, fig)
-        canvas = FigureCanvasTkAgg(fig, master=tk.Toplevel(self.app.root))   
+        main = tk.Toplevel(self.app.root)
+        canvas = FigureCanvasTkAgg(fig, master=main)   
         canvas.draw()
-        canvas.get_tk_widget().grid(row=0,column=0)
+        toolbar = NavigationToolbar2Tk(canvas, main)
+        toolbar.update()
+        canvas.get_tk_widget().pack()
     def plot(self, *args):
         pass
 

@@ -81,6 +81,7 @@ def Page(self: App):
                 data = json.loads(json_data)
                 title = data["metadata"]["title"] if "metadata" in data and "title" in data["metadata"] else "Untitled"
                 description = data["metadata"]["description"] if "metadata" in data and "description" in data["metadata"] else "No description"
-            ttk.Button(config, text="{}\n@ {}".format(title, path), command=lambda x=f"configurations/{path}": self.load_canvas(x)).grid()
+            ttk.Button(config,text="{}".format(title), command=lambda x=f"configurations/{path}": self.load_canvas(x)).grid()
+            ttk.Label(config, text=f"info: {description}\n@ {path}").grid()
     
     return page
