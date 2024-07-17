@@ -1,0 +1,137 @@
+{
+    "nodes": [
+        {
+            "moduleName": "virgo.nodes.base_nodes",
+            "className": "DataSourceNode",
+            "description": null,
+            "isSource": true,
+            "x": 334,
+            "y": 430,
+            "varName": "T",
+            "ins": [],
+            "outs": [
+                0
+            ]
+        },
+        {
+            "moduleName": "virgo.nodes.base_nodes",
+            "className": "DataSourceNode",
+            "description": null,
+            "isSource": true,
+            "x": 362,
+            "y": 259,
+            "varName": "lat",
+            "ins": [],
+            "outs": [
+                1
+            ]
+        },
+        {
+            "moduleName": "virgo.nodes.base_nodes",
+            "className": "DataSourceNode",
+            "description": null,
+            "isSource": true,
+            "x": 356,
+            "y": 82,
+            "varName": "lon",
+            "ins": [],
+            "outs": [
+                2
+            ]
+        },
+        {
+            "moduleName": "virgo.nodes.functional.data_operations",
+            "className": "DimensionIndex",
+            "description": "Index a dimension",
+            "isSource": false,
+            "x": 520,
+            "y": 409,
+            "varName": "lev",
+            "index": "1000.0",
+            "ins": [
+                0
+            ],
+            "outs": [
+                3
+            ]
+        },
+        {
+            "moduleName": "virgo.nodes.graphical.Animations",
+            "className": "ContourPlotAnimation",
+            "description": "Contour Plot Animated Over Time",
+            "isSource": false,
+            "x": 674,
+            "y": 145,
+            "ins": [
+                1,
+                2,
+                3
+            ],
+            "outs": []
+        }
+    ],
+    "ins": [
+        {
+            "description": "data",
+            "parent": 3,
+            "edges": [
+                0
+            ]
+        },
+        {
+            "description": "x-axis",
+            "parent": 4,
+            "edges": [
+                2
+            ]
+        },
+        {
+            "description": "y-axis",
+            "parent": 4,
+            "edges": [
+                1
+            ]
+        },
+        {
+            "description": "data",
+            "parent": 4,
+            "edges": [
+                3
+            ]
+        }
+    ],
+    "outs": [
+        {
+            "description": "T",
+            "parent": 0,
+            "edges": [
+                0
+            ]
+        },
+        {
+            "description": "lat",
+            "parent": 1,
+            "edges": [
+                2
+            ]
+        },
+        {
+            "description": "lon",
+            "parent": 2,
+            "edges": [
+                1
+            ]
+        },
+        {
+            "description": "sliced data",
+            "parent": 3,
+            "edges": [
+                3
+            ]
+        }
+    ],
+    "metadata": {
+        "title": "TempAnimation",
+        "description": "lat-lon-temp over time"
+    }
+}

@@ -5,7 +5,7 @@ from virgo.ui.components import node_buttons
 
 class DraggableWidget(tk.Frame):
     def __init__(self, node, app, widgetClass=None, **kwargs):
-        super().__init__(highlightthickness=2, highlightbackground="white", **kwargs)
+        super().__init__(highlightthickness=2, highlightbackground="#2A9D8F", **kwargs)
         self.start_pos = 0, 0
         self.app = app
         self.canvas = self.app.canvas

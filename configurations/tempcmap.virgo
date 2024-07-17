@@ -1,0 +1,167 @@
+{
+    "nodes": [
+        {
+            "moduleName": "virgo.nodes.base_nodes",
+            "className": "DataSourceNode",
+            "description": null,
+            "isSource": true,
+            "x": 127.0,
+            "y": 131.0,
+            "varName": "lon",
+            "ins": [],
+            "outs": [
+                0
+            ]
+        },
+        {
+            "moduleName": "virgo.nodes.base_nodes",
+            "className": "DataSourceNode",
+            "description": null,
+            "isSource": true,
+            "x": 123.0,
+            "y": 322.0,
+            "varName": "lat",
+            "ins": [],
+            "outs": [
+                1
+            ]
+        },
+        {
+            "moduleName": "virgo.nodes.base_nodes",
+            "className": "DataSourceNode",
+            "description": null,
+            "isSource": true,
+            "x": 135.0,
+            "y": 499.0,
+            "varName": "T",
+            "ins": [],
+            "outs": [
+                2
+            ]
+        },
+        {
+            "moduleName": "virgo.nodes.functional.data_operations",
+            "className": "DimensionIndex",
+            "description": "Index a dimension",
+            "isSource": false,
+            "x": 300.0,
+            "y": 532.0,
+            "varName": "lev",
+            "index": "1000.0",
+            "ins": [
+                0
+            ],
+            "outs": [
+                3
+            ]
+        },
+        {
+            "moduleName": "virgo.nodes.functional.data_operations",
+            "className": "DimensionIndex",
+            "description": "Index a dimension",
+            "isSource": false,
+            "x": 457.0,
+            "y": 532.0,
+            "varName": "time",
+            "index": "0.0",
+            "ins": [
+                1
+            ],
+            "outs": [
+                4
+            ]
+        },
+        {
+            "moduleName": "virgo.nodes.graphical.example_graphs",
+            "className": "SimpleColorMesh",
+            "description": "Color Mesh Plot",
+            "isSource": false,
+            "x": 664.0,
+            "y": 334.0,
+            "ins": [
+                2,
+                3,
+                4
+            ],
+            "outs": []
+        }
+    ],
+    "ins": [
+        {
+            "description": "data",
+            "parent": 3,
+            "edges": [
+                2
+            ]
+        },
+        {
+            "description": "data",
+            "parent": 4,
+            "edges": [
+                3
+            ]
+        },
+        {
+            "description": "x-axis",
+            "parent": 5,
+            "edges": [
+                0
+            ]
+        },
+        {
+            "description": "y-axis",
+            "parent": 5,
+            "edges": [
+                1
+            ]
+        },
+        {
+            "description": "var to plot",
+            "parent": 5,
+            "edges": [
+                4
+            ]
+        }
+    ],
+    "outs": [
+        {
+            "description": "lon",
+            "parent": 0,
+            "edges": [
+                2
+            ]
+        },
+        {
+            "description": "lat",
+            "parent": 1,
+            "edges": [
+                3
+            ]
+        },
+        {
+            "description": "T",
+            "parent": 2,
+            "edges": [
+                0
+            ]
+        },
+        {
+            "description": "sliced data",
+            "parent": 3,
+            "edges": [
+                1
+            ]
+        },
+        {
+            "description": "sliced data",
+            "parent": 4,
+            "edges": [
+                4
+            ]
+        }
+    ],
+    "metadata": {
+        "title": "Temperature Cmap",
+        "description": "lat-lon-temp"
+    }
+}

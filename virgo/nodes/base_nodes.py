@@ -91,13 +91,12 @@ class GraphNode(graph.Node):
     def module_wrapper(self, *args):
         fig = Figure(figsize = (8, 8), 
                  dpi = 100) 
-        self.plot(*args, fig)
         main = tk.Toplevel(self.app.root)
-        canvas = FigureCanvasTkAgg(fig, master=main)   
-        canvas.draw()
+        canvas = FigureCanvasTkAgg(fig, master=main)  
         toolbar = NavigationToolbar2Tk(canvas, main)
-        toolbar.update()
+        toolbar.update() 
         canvas.get_tk_widget().pack()
+        self.plot(*args, fig)
     def plot(self, *args):
         pass
 

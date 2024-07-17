@@ -149,6 +149,7 @@ class App:
                     timeFormat = "%Y%m%d"
                     newTime = dataset["time"] + int(datetime.datetime.strptime(timeStr, timeFormat).timestamp()/60)
                     newTime.attrs = dataset["time"].attrs
+                    dataset["time"].attrs["units"] = "Seconds"
                     timeCorrected.append(dataset.assign_coords(time=newTime))
                 self.data = xr.concat(timeCorrected, "time") #TODO: defrost this var (since it's hard coded)
                 self.data = self.data.sortby("time")
@@ -178,11 +179,11 @@ class App:
         """
         self.pages[page].tkraise()
         if page == 0:
-            self.clear_canvas(reset=False)
+            # self.clear_canvas(reset=False)
             for node in self.nodes:
-                node.render()
+                node.draggableWidget.tkraise()
             self.canvas.update_idletasks()
-            self.draw_lines()
+            # self.draw_lines()
 
         self.curPage = page
     def resize_handler(self, event):
@@ -203,11 +204,11 @@ class App:
         if self.selectedNodeVar not in self.selectedNodeVar.node.draggableWidget.lines:
             lines = self.selectedNodeVar.node.draggableWidget.lines[self.selectedNodeVar] = {}
             #TODO: Add delete handler on double click
-            lines["None"] = self.canvas.create_line(0, 0, x, y, width=3, arrow=tk.LAST)
+            lines["None"] = self.create_line()
         else:
             lines = self.selectedNodeVar.node.draggableWidget.lines[self.selectedNodeVar]
             if "None" not in lines:
-                lines["None"] = self.canvas.create_line(0, 0, x, y, width=3, arrow=tk.LAST)
+                lines["None"] = self.create_line()
             lineId = lines["None"]
             newCoords = self.canvas.coords(lineId)[:2] + [x, y]
             self.canvas.coords(lineId, *newCoords)
@@ -266,13 +267,14 @@ class App:
                 line = out.node.draggableWidget.lines[out][inp]
                 self.canvas.delete(line)
                 del line
-
+    def create_line(self):
+        return self.canvas.create_line(0,0,1,1, width=6, arrow=tk.LAST, fill="#264653")
     def draw_lines(self):
         for node in self.nodes:
             for out in node.outs:
                 out.node.draggableWidget.lines[out] = {}
                 for inp in out.edges:
-                    line = self.canvas.create_line(0,0,1,1, width=3, arrow=tk.LAST)
+                    line = self.create_line()
                     out.node.draggableWidget.lines[out][inp] = line
                     self.canvas.tag_bind(line, '<Double-Button-1>', lambda _, out=out, inVar=inp: self.delete_line_handler(out, inVar))
                     self.root.update_idletasks() 
