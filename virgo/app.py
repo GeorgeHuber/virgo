@@ -110,10 +110,11 @@ class App:
     def run_canvas(self):
         for node in self.sources:
             node.forward()
-    def clear_canvas(self):
+    def clear_canvas(self, reset=True):
         self.selectedNodeVar = None
-        self.sources = []
-        self.nodes = []
+        if reset:
+            self.sources = []
+            self.nodes = []
         self.canvas.delete('all')
     def update_canvas_page(self):
         pass
@@ -151,6 +152,8 @@ class App:
                     timeCorrected.append(dataset.assign_coords(time=newTime))
                 self.data = xr.concat(timeCorrected, "time") #TODO: defrost this var (since it's hard coded)
                 self.data = self.data.sortby("time")
+                seconds = self.data["time"] - self.data["time"][0]
+                self.data = self.data.assign_coords(time=seconds)
             # Otherwise merge them since vars should be different
             else:
                 self.data = xr.merge(datum, compat="override")
@@ -175,7 +178,7 @@ class App:
         """
         self.pages[page].tkraise()
         if page == 0:
-            self.clear_canvas()
+            self.clear_canvas(reset=False)
             for node in self.nodes:
                 node.render()
             self.canvas.update_idletasks()
