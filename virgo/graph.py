@@ -1,5 +1,3 @@
-import tkinter as tk
-from tkinter import ttk
 from virgo import utils, functions
 from virgo.ui.components.draggable_widget import DraggableWidget
 

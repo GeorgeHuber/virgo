@@ -16,6 +16,8 @@ import xarray as xr
     
     BUGS:
     Selection of a data file affects placement on screen of widgets
+    some canvasses do not load properly if the screen 
+    is too small. Likely the x,y are not correct for tk window offscreen, good luck :)
 
 
     DONE:

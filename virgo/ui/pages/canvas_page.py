@@ -15,6 +15,7 @@ def Page(self: App):
     page = tk.Frame(self.root)
     page.label = "Canvas"
     page.grid(column=0, row=0,sticky ="nsew")
+    page.bind("<Configure>", self.resize_handler)
     
     page.grid_columnconfigure(0, weight=1,uniform="page1")
     page.grid_columnconfigure(1, weight=3,uniform="page1")

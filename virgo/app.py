@@ -30,6 +30,7 @@ class App:
         self.root = root
         self.style = style.build_style()
         self.root.geometry("1200x900")
+        self.root.minsize(900, 675)
         # self.root.iconbitmap("virgo/virgo.ico")
         self.iconBase = PIL.Image.open("virgo/virgo.gif")
         self.icon = PIL.ImageTk.PhotoImage(self.iconBase)
@@ -57,7 +58,7 @@ class App:
 
         self.set_main_menu()
         self.set_active_page(0)
-
+        
         if DEBUG:
             self.filePaths.append("/Users/grhuber/Downloads/High-01-29.geosgcm_prog.2018227.nc4")
             self.filePaths = [
@@ -181,6 +182,10 @@ class App:
             self.draw_lines()
 
         self.curPage = page
+    def resize_handler(self, event):
+        for node in self.nodes:
+            node.draggableWidget.update_input_lines()
+            node.draggableWidget.update_output_lines()
     def canvas_motion_handler(self, event):
         """Called any time the mouse is moved on the canvas. The
         currently selected nodeVar's line should move with the 
@@ -264,7 +269,7 @@ class App:
             for out in node.outs:
                 out.node.draggableWidget.lines[out] = {}
                 for inp in out.edges:
-                    line = self.canvas.create_line(0,0,100,100, width=3, arrow=tk.LAST)
+                    line = self.canvas.create_line(0,0,1,1, width=3, arrow=tk.LAST)
                     out.node.draggableWidget.lines[out][inp] = line
                     self.canvas.tag_bind(line, '<Double-Button-1>', lambda _, out=out, inVar=inp: self.delete_line_handler(out, inVar))
                     self.root.update_idletasks() 
@@ -323,10 +328,8 @@ class App:
                         node.outs.append(outList[out]) 
                     node.render()
                     self.root.update_idletasks()
-                    cx, cy = self.canvas.winfo_rootx(), self.canvas.winfo_rooty()
-                    x,y = n["x"] - cx, n["y"] - cy
-                    print(x,y)
-                    node.draggableWidget.move_to(x,y)
+                    node.draggableWidget.move_to(n["x"],n["y"])
+                    # print(node.description, self.canvas.coords(node.draggableWidget.id))
                     node.set_state(n)
                 self.draw_lines()
 
