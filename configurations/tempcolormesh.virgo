@@ -5,9 +5,9 @@
             "className": "DataSourceNode",
             "description": null,
             "isSource": true,
-            "x": 33,
-            "y": 424,
-            "varName": "T",
+            "x": 28,
+            "y": 36,
+            "varName": "lon",
             "ins": [],
             "outs": [
                 0
@@ -18,8 +18,8 @@
             "className": "DataSourceNode",
             "description": null,
             "isSource": true,
-            "x": 31,
-            "y": 211,
+            "x": 29,
+            "y": 221,
             "varName": "lat",
             "ins": [],
             "outs": [
@@ -31,12 +31,42 @@
             "className": "DataSourceNode",
             "description": null,
             "isSource": true,
-            "x": 31,
-            "y": 24,
-            "varName": "lon",
+            "x": 7,
+            "y": 409,
+            "varName": "T",
             "ins": [],
             "outs": [
                 2
+            ]
+        },
+        {
+            "moduleName": "virgo.nodes.graphical.example_graphs",
+            "className": "SimpleColorMesh",
+            "description": "Color Mesh Plot",
+            "isSource": false,
+            "x": 484,
+            "y": 138,
+            "ins": [
+                0,
+                1,
+                2
+            ],
+            "outs": []
+        },
+        {
+            "moduleName": "virgo.nodes.functional.data_operations",
+            "className": "DimensionIndex",
+            "description": "Index a dimension",
+            "isSource": false,
+            "x": 219,
+            "y": 418,
+            "varName": "time",
+            "index": "0.0",
+            "ins": [
+                3
+            ],
+            "outs": [
+                3
             ]
         },
         {
@@ -44,57 +74,50 @@
             "className": "DimensionIndex",
             "description": "Index a dimension",
             "isSource": false,
-            "x": 280,
-            "y": 409,
+            "x": 384,
+            "y": 457,
             "varName": "lev",
             "index": "1000.0",
             "ins": [
-                0
+                4
             ],
             "outs": [
-                3
+                4
             ]
-        },
-        {
-            "moduleName": "virgo.nodes.graphical.Animations",
-            "className": "ContourPlotAnimation",
-            "description": "Contour Plot Animated Over Time",
-            "isSource": false,
-            "x": 434,
-            "y": 102,
-            "ins": [
-                1,
-                2,
-                3
-            ],
-            "outs": []
         }
     ],
     "ins": [
         {
-            "description": "data",
+            "description": "x-axis",
             "parent": 3,
             "edges": [
                 0
             ]
         },
         {
-            "description": "x-axis",
+            "description": "y-axis",
+            "parent": 3,
+            "edges": [
+                1
+            ]
+        },
+        {
+            "description": "var to plot",
+            "parent": 3,
+            "edges": [
+                4
+            ]
+        },
+        {
+            "description": "data",
             "parent": 4,
             "edges": [
                 2
             ]
         },
         {
-            "description": "y-axis",
-            "parent": 4,
-            "edges": [
-                1
-            ]
-        },
-        {
             "description": "data",
-            "parent": 4,
+            "parent": 5,
             "edges": [
                 3
             ]
@@ -102,7 +125,7 @@
     ],
     "outs": [
         {
-            "description": "T",
+            "description": "lon",
             "parent": 0,
             "edges": [
                 0
@@ -112,26 +135,33 @@
             "description": "lat",
             "parent": 1,
             "edges": [
-                2
-            ]
-        },
-        {
-            "description": "lon",
-            "parent": 2,
-            "edges": [
                 1
             ]
         },
         {
-            "description": "sliced data",
-            "parent": 3,
+            "description": "T",
+            "parent": 2,
             "edges": [
                 3
+            ]
+        },
+        {
+            "description": "sliced data",
+            "parent": 4,
+            "edges": [
+                4
+            ]
+        },
+        {
+            "description": "sliced data",
+            "parent": 5,
+            "edges": [
+                2
             ]
         }
     ],
     "metadata": {
-        "title": "Temperature Animation",
-        "description": "lon-lat-temp contour over time"
+        "title": "Temperature Colormap",
+        "description": "lon-lat-temp colormesh"
     }
 }

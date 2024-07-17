@@ -5,9 +5,9 @@
             "className": "DataSourceNode",
             "description": null,
             "isSource": true,
-            "x": 357,
-            "y": 537,
-            "varName": "T",
+            "x": 28,
+            "y": 36,
+            "varName": "lat",
             "ins": [],
             "outs": [
                 0
@@ -18,9 +18,9 @@
             "className": "DataSourceNode",
             "description": null,
             "isSource": true,
-            "x": 371,
-            "y": 354,
-            "varName": "lat",
+            "x": 29,
+            "y": 221,
+            "varName": "lev",
             "ins": [],
             "outs": [
                 1
@@ -31,9 +31,9 @@
             "className": "DataSourceNode",
             "description": null,
             "isSource": true,
-            "x": 385,
-            "y": 158,
-            "varName": "lon",
+            "x": 7,
+            "y": 409,
+            "varName": "T",
             "ins": [],
             "outs": [
                 2
@@ -44,8 +44,8 @@
             "className": "DimensionIndex",
             "description": "Index a dimension",
             "isSource": false,
-            "x": 789,
-            "y": 499,
+            "x": 185,
+            "y": 418,
             "varName": "time",
             "index": "0.0",
             "ins": [
@@ -60,10 +60,10 @@
             "className": "DimensionIndex",
             "description": "Index a dimension",
             "isSource": false,
-            "x": 557,
-            "y": 522,
-            "varName": "lev",
-            "index": "1000.0",
+            "x": 321,
+            "y": 461,
+            "varName": "lon",
+            "index": "0.0",
             "ins": [
                 1
             ],
@@ -72,18 +72,47 @@
             ]
         },
         {
-            "moduleName": "virgo.nodes.graphical.example_graphs",
-            "className": "SimpleColorMesh",
-            "description": "Color Mesh Plot",
+            "moduleName": "virgo.nodes.functional.Units",
+            "className": "hPa_to_Km",
+            "description": "Convert from hPa to km",
             "isSource": false,
-            "x": 966,
-            "y": 266,
+            "x": 195,
+            "y": 246,
             "ins": [
-                2,
+                2
+            ],
+            "outs": [
+                5
+            ]
+        },
+        {
+            "moduleName": "virgo.nodes.graphical.example_graphs",
+            "className": "SimpleContourPlot",
+            "description": "Contour Plot",
+            "isSource": false,
+            "x": 482,
+            "y": 47,
+            "ins": [
                 3,
-                4
+                4,
+                5
             ],
             "outs": []
+        },
+        {
+            "moduleName": "virgo.nodes.functional.Calculus",
+            "className": "PartialDerivative",
+            "description": "Take the partial derivative: dY/dX",
+            "isSource": false,
+            "x": 463,
+            "y": 338,
+            "ins": [
+                6,
+                7
+            ],
+            "outs": [
+                6
+            ]
         }
     ],
     "ins": [
@@ -91,76 +120,113 @@
             "description": "data",
             "parent": 3,
             "edges": [
-                4
+                2
             ]
         },
         {
             "description": "data",
             "parent": 4,
             "edges": [
-                0
+                3
             ]
         },
         {
-            "description": "x-axis",
-            "parent": 5,
-            "edges": [
-                2
-            ]
-        },
-        {
-            "description": "y-axis",
+            "description": "lev - Hpa",
             "parent": 5,
             "edges": [
                 1
             ]
         },
         {
-            "description": "var to plot",
-            "parent": 5,
+            "description": "x-axis",
+            "parent": 6,
             "edges": [
-                3
+                0
+            ]
+        },
+        {
+            "description": "y-axis",
+            "parent": 6,
+            "edges": [
+                5
+            ]
+        },
+        {
+            "description": "data",
+            "parent": 6,
+            "edges": [
+                6
+            ]
+        },
+        {
+            "description": "X",
+            "parent": 7,
+            "edges": [
+                5
+            ]
+        },
+        {
+            "description": "Y",
+            "parent": 7,
+            "edges": [
+                4
             ]
         }
     ],
     "outs": [
         {
-            "description": "T",
-            "parent": 0,
-            "edges": [
-                1
-            ]
-        },
-        {
             "description": "lat",
-            "parent": 1,
+            "parent": 0,
             "edges": [
                 3
             ]
         },
         {
-            "description": "lon",
-            "parent": 2,
+            "description": "lev",
+            "parent": 1,
             "edges": [
                 2
+            ]
+        },
+        {
+            "description": "T",
+            "parent": 2,
+            "edges": [
+                0
             ]
         },
         {
             "description": "sliced data",
             "parent": 3,
             "edges": [
-                4
+                1
             ]
         },
         {
             "description": "sliced data",
             "parent": 4,
             "edges": [
-                0
+                7
+            ]
+        },
+        {
+            "description": "altitude - km",
+            "parent": 5,
+            "edges": [
+                6,
+                4
+            ]
+        },
+        {
+            "description": "dY/dX",
+            "parent": 7,
+            "edges": [
+                5
             ]
         }
     ],
-    "metadata":{
-        "title":"Color Map of temperature"
+    "metadata": {
+        "title": "Temp Gradient Contour",
+        "description": "DTemp/DAlt contour"
     }
 }

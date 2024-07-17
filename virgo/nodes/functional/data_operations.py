@@ -146,12 +146,12 @@ class DimensionSliceWidget(tk.Frame):
         #TODO get passed var
         indicies = [str(x.data) for x in self.app.data[dimName]]
         self.dimStartSelect["values"] = indicies
-        self.dimStopSelect["values"] = indicies
+        self.dimStopSelect["values"] = indicies + ["END"]
         self.dimStepSelect["values"] = [str(i) for i in range(1, len(indicies))]
         if self.dimStart.get() not in self.dimStartSelect["values"]:
             self.dimStart.set(self.dimStartSelect["values"][0])
         if self.dimStop.get() not in self.dimStopSelect["values"]:
-            self.dimStop.set(self.dimStopSelect["values"][0])
+            self.dimStop.set(self.dimStopSelect["values"][-1])
         if self.dimStep.get() not in self.dimStepSelect["values"]:
             self.dimStep.set(self.dimStepSelect["values"][0])
         self.set_slice_handler()

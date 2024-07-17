@@ -28,9 +28,10 @@ class DraggableWidget(tk.Frame):
         else:
             utils.bind_all_recur(self)
     def get_state(self):
+        coords = self.canvas.bbox(self.id)
         state = {
-            "x": self.winfo_rootx(),
-            "y": self.winfo_rooty(),
+            "x": coords[0],
+            "y": coords[1],
         }
         if self.widget and hasattr(self.widget, "get_state"):
             state |= self.widget.get_state()
