@@ -24,15 +24,15 @@ class ContourPlotAnimation(GraphNode):
         ax.set_xlabel("{} {}".format(axis1.attrs["long_name"], "["+axis1.attrs['units']+"]" if 'units' in axis1.attrs else ""))
         ax.set_ylabel("{} {}".format(axis2.attrs["long_name"], "["+axis2.attrs['units']+"]" if 'units' in axis2.attrs else ""))
         fig.colorbar(g, label="{} {}".format(var.attrs["long_name"], "["+var.attrs['units']+"]" if 'units' in var.attrs else ""))
-        
-        def update(frame):
-            ax.clear()
+        ims = []
+        for frame in range(len(var["time"])):
+            # ax.clear()
             # print(frame)
             data = var[{"time":frame}]
-            ax.set_title(f't = {frame}')
+            t = ax.text(0.5,1.05,f't = {frame}',horizontalalignment='center',
+     verticalalignment='center', transform=ax.transAxes)
             g = ax.contourf(X, Y, data, levels=12, cmap="bwr")
-            ax.set_xlabel("{} {}".format(axis1.attrs["long_name"], "["+axis1.attrs['units']+"]" if 'units' in axis1.attrs else ""))
-            ax.set_ylabel("{} {}".format(axis2.attrs["long_name"], "["+axis2.attrs['units']+"]" if 'units' in axis2.attrs else ""))
-        self.ani = animation.FuncAnimation(fig=fig, func=update, frames=len(var["time"]), blit=False, interval=100)
+            ims.append([g,t])
+        self.ani = animation.ArtistAnimation(fig, ims, blit=False, interval=400)
         writer = animation.PillowWriter(fps=30)
         self.ani.save("test.gif", writer=writer)

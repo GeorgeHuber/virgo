@@ -109,7 +109,6 @@ class DimensionSliceWidget(tk.Frame):
         self.dimStep = tk.StringVar()
         self.dimSelect = ttk.OptionMenu(self, self.dimName)
         self.dimName.trace("w", self.set_dim_handler)
-        self.exclude = [self.dimSelect]
         self.dimSelect.grid()
         ttk.Label(self, text="start").grid()
         self.dimStartSelect = ttk.Combobox(self, values=[], textvariable=self.dimStart, width=5)
@@ -123,6 +122,7 @@ class DimensionSliceWidget(tk.Frame):
         self.dimStepSelect = ttk.Combobox(self, values=[], textvariable=self.dimStep, width=5)
         self.dimStep.trace("w", self.set_slice_handler)
         self.dimStepSelect.grid()
+        self.exclude = [self.dimSelect, self.dimStartSelect, self.dimStopSelect, self.dimStepSelect]
         self.dimensions = []
         # Update dropdown options
         self.on_data_change()
@@ -146,7 +146,7 @@ class DimensionSliceWidget(tk.Frame):
         #TODO get passed var
         indicies = [str(x.data) for x in self.app.data[dimName]]
         self.dimStartSelect["values"] = indicies
-        self.dimStopSelect["values"] = indicies + ["END"]
+        self.dimStopSelect["values"] = indicies + [ "END" ]
         self.dimStepSelect["values"] = [str(i) for i in range(1, len(indicies))]
         if self.dimStart.get() not in self.dimStartSelect["values"]:
             self.dimStart.set(self.dimStartSelect["values"][0])
@@ -157,6 +157,7 @@ class DimensionSliceWidget(tk.Frame):
         self.set_slice_handler()
 
     def set_slice_handler(self, varName=None, idx=None, op=None):
+        print("handler triggered")
         dimName = self.dimName.get()
         dimStart = self.dimStart.get()
         dimStop = self.dimStop.get()
