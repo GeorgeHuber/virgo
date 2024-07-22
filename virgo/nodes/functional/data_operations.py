@@ -163,15 +163,20 @@ class DimensionSliceWidget(tk.Frame):
         dimStop = self.dimStop.get()
         dimStep = self.dimStep.get()
         #TODO: Dont chekc start, stop, step every time only the one that changes
+        def compare_floats(x, y):
+            if x == "END" or y == "END":
+                return x == y
+            return float(x)==float(y)
         try:
-            dimStart = utils.index(self.dimStartSelect["values"], dimStart, lambda x, y: float(x)==float(y))
+            dimStart = utils.index(self.dimStartSelect["values"], dimStart, compare_floats)
             if dimStart == -1:
                 return
-            dimStop = utils.index(self.dimStopSelect["values"], dimStop, lambda x, y: float(x)==float(y))
+            dimStop = utils.index(self.dimStopSelect["values"], dimStop, compare_floats)
             if dimStop == -1:
                 return
             dimStep = int(dimStep)
-        except Exception:
+        except Exception as e:
+            print(e)
             return
         #TODO: check that this passes metadata correctly
         def function(axis, data):
