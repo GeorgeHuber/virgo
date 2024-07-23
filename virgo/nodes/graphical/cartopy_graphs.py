@@ -20,8 +20,7 @@ class ContourPlot(GraphNode):
         g = ax.contourf(matrixX, matrixY, var,levels=12, cmap="bwr")
         ax.set_xlabel("{} {}".format(axis1.attrs["long_name"], "["+axis1.attrs['units']+"]" if 'units' in axis1.attrs else ""))
         ax.set_ylabel("{} {}".format(axis2.attrs["long_name"], "["+axis2.attrs['units']+"]" if 'units' in axis2.attrs else ""))
-        v = np.arange(200, 300, 5) # Temperature contour levels
-        cp = ax.contourf(matrixX, matrixY, var, v, transform=cartopy.crs.PlateCarree(), zorder=2, alpha=0.65, cmap=plt.cm.coolwarm)
+        cp = ax.contourf(matrixX, matrixY, var, transform=cartopy.crs.PlateCarree(), zorder=2, alpha=0.65, cmap=plt.cm.coolwarm)
         fig.colorbar(cp, label="{} {}".format(var.attrs["long_name"], "["+var.attrs['units']+"]" if 'units' in var.attrs else ""))
 
         ax.gridlines(draw_labels=True, zorder=1,color="grey",alpha=0.5)

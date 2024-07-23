@@ -5,7 +5,7 @@ import tkinter as tk
 import os, json, PIL
 
 from virgo.nodes import base_nodes, graphical, functional
-
+from virgo.ui.components import scrollable_frame
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from virgo.app import App
@@ -29,6 +29,8 @@ def Page(self: App):
 
     panelBorder = tk.Frame(page, highlightbackground="black",highlightthickness=1)
     panelBorder.grid(column=0, row=0, sticky="nsew")
+    panelBorder.grid_rowconfigure(0, weight=1)
+    panelBorder.grid_columnconfigure(0, weight=1)
     panel = ttk.Notebook(panelBorder, style="CanvasPage.TNotebook")
 
     self.widgetMenu = tk.Frame(panel)
@@ -67,11 +69,11 @@ def Page(self: App):
     
     self.configMenu.grid_rowconfigure(0, weight=1)
     self.configMenu.grid_columnconfigure(0, weight=1)
-    config = ttk.Frame(self.configMenu)
-    config.grid(column=0, row=0, sticky="nsew")
+    config = scrollable_frame.ScrollableFrame(self.configMenu)
+    configFrame = config.get()
 
 
-    ttk.Label(config, text="Prebuilt Configurations", style="H3.TLabel").grid()
+    ttk.Label(configFrame, text="Prebuilt Configurations", style="H3.TLabel").grid()
     try:
         #TODO:  Dont hard code this for max & linux
         configPaths = os.listdir("configurations")
@@ -86,7 +88,8 @@ def Page(self: App):
                 data = json.loads(json_data)
                 title = data["metadata"]["title"] if "metadata" in data and "title" in data["metadata"] else "Untitled"
                 description = data["metadata"]["description"] if "metadata" in data and "description" in data["metadata"] else "No description"
-            ttk.Button(config,text="{}".format(title), command=lambda x=f"configurations/{path}": self.load_canvas(x)).grid()
-            ttk.Label(config, text=f"info: {description}\n@ {path}").grid()
-    
+            ttk.Button(configFrame,text="{}".format(title), command=lambda x=f"configurations/{path}": self.load_canvas(x)).grid()
+            ttk.Label(configFrame, text=f"info: {description}\n@ {path}").grid()
+            
+    config.grid(column=0, row=0, sticky="nsew")
     return page
