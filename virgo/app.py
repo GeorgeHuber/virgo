@@ -69,7 +69,7 @@ class App:
             now = time.time()
             self.load_data()
             print(f"Loaded in : {time.time() - now} seconds")
-            self.canvasPath = "configurations/2dlineplot.virgo"
+            self.canvasPath = "configurations/lineplot2d.virgo"
             self.load_canvas(self.canvasPath)
 
     def set_main_menu(self):
@@ -108,6 +108,9 @@ class App:
         n = self.add_node_to_canvas(nodeType)
         self.sources.append(n)
     def run_canvas(self):
+        if not self.data:
+            tk.messagebox.showerror("Error", "No data loaded! Use the file top menu to open something")
+            return
         for node in self.sources:
             node.forward()
     def clear_canvas(self, reset=True):
@@ -143,18 +146,22 @@ class App:
             # TODO: allow the user to select how to handle multiple files
             elif datum[0].variables.keys() == datum[1].variables.keys():
                 #TODO: the following code is useful for GEOS but not every file (change)
-                timeCorrected = []
-                for dataset in datum:
-                    timeStr = str(dataset["time"].attrs["begin_date"])
-                    timeFormat = "%Y%m%d"
-                    newTime = dataset["time"] + int(datetime.datetime.strptime(timeStr, timeFormat).timestamp()/60)
-                    newTime.attrs = dataset["time"].attrs
-                    dataset["time"].attrs["units"] = "Seconds"
-                    timeCorrected.append(dataset.assign_coords(time=newTime))
-                self.data = xr.concat(timeCorrected, "time") #TODO: defrost this var (since it's hard coded)
-                self.data = self.data.sortby("time")
-                seconds = self.data["time"] - self.data["time"][0]
-                self.data = self.data.assign_coords(time=seconds)
+                try:
+                    timeCorrected = []
+                    for dataset in datum:
+                        timeStr = str(dataset["time"].attrs["begin_date"])
+                        timeFormat = "%Y%m%d"
+                        newTime = dataset["time"] + int(datetime.datetime.strptime(timeStr, timeFormat).timestamp()/60)
+                        newTime.attrs = dataset["time"].attrs
+                        dataset["time"].attrs["units"] = "Seconds"
+                        timeCorrected.append(dataset.assign_coords(time=newTime))
+                    self.data = xr.concat(timeCorrected, "time") #TODO: defrost this var (since it's hard coded)
+                    self.data = self.data.sortby("time")
+                    seconds = self.data["time"] - self.data["time"][0]
+                    self.data = self.data.assign_coords(time=seconds)
+                except Exception as e:
+                    tk.messagebox.error("Error", "Files need a dimension named 'time' to be concatenated.")
+                    return
             # Otherwise merge them since vars should be different
             else:
                 self.data = xr.merge(datum, compat="override")
@@ -170,6 +177,8 @@ class App:
         for node in self.nodes:
             if hasattr(node, "on_data_change"):
                 node.on_data_change()
+        
+        tk.messagebox.showinfo("File Status", "File Loaded Successfully")
 
     def set_active_page(self, page):
         """Brings page to top level of tkinter rendering. 
@@ -203,7 +212,6 @@ class App:
         x, y = event.x, event.y
         if self.selectedNodeVar not in self.selectedNodeVar.node.draggableWidget.lines:
             lines = self.selectedNodeVar.node.draggableWidget.lines[self.selectedNodeVar] = {}
-            #TODO: Add delete handler on double click
             lines["None"] = self.create_line()
         else:
             lines = self.selectedNodeVar.node.draggableWidget.lines[self.selectedNodeVar]
@@ -214,7 +222,6 @@ class App:
             self.canvas.coords(lineId, *newCoords)
         self.selectedNodeVar.node.draggableWidget.update_output_lines()
     def canvas_click_handler(self, event):
-        #TODO: add remove functionality
         if self.selectedNodeVar:
             lines = self.selectedNodeVar.node.draggableWidget.lines
             lineId = lines[self.selectedNodeVar]["None"]

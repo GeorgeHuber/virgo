@@ -17,7 +17,7 @@ class DraggableWidget(tk.Frame):
         self.lines = {}
         self.create_ui()
         self.id = self.canvas.create_window(400, 400, window=self)
-        #TODO: figure out why this is breaking
+
         self.bind_class(self.id, "<ButtonPress-1>", self.on_drag_start)
         self.bind_class(self.id, "<ButtonRelease-1>", self.on_drag_stop)
         self.bind_class(self.id, "<B1-Motion>", self.on_drag_motion)
@@ -84,7 +84,6 @@ class DraggableWidget(tk.Frame):
     def on_drag_stop(self, event):
         self.canvas.dtag("drag")
     def on_drag_motion(self, event):
-        #TODO: adjust active lines on drag
         x = min(max(event.x_root-self.start_pos[0], 0),self.canvas.winfo_width()-10)
         y = min(max(event.y_root-self.start_pos[1], 0),self.canvas.winfo_height()-10)
         self.canvas.moveto("drag", x, y)

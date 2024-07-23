@@ -238,7 +238,6 @@ class DimensionMeanWidget(tk.Frame):
             return
         self.dimensions = list(self.app.data.dims.keys())
         self.dimSelect['menu'].delete(0, 'end')
-        # TODO: make thsi work when file changes without rebuild
         for dimName in self.dimensions:
             self.dimSelect['menu'].add_command(label=dimName, command=lambda x=dimName: self.set_dim_handler(x))
         

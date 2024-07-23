@@ -1,6 +1,8 @@
 from virgo import utils, functions
 from virgo.ui.components.draggable_widget import DraggableWidget
 
+import tkinter as tk
+
 class NodeVar:
     def __init__(self, parent, type, description):
         self.type = type
@@ -52,7 +54,7 @@ class Node:
         try:
             output = self.module(*args)
         except Exception as e:
-            print(e)
+            tk.messagebox.showerror("Error", f"Node {self.description} failed to run: {e}")
             for inputVar in self.ins:
                 print("failed to run, resetting")
                 inputVar.ready = False

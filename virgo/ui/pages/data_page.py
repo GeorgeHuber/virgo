@@ -12,7 +12,6 @@ def Page(self: App):
     page.label = "Data"
     page.grid(column=0, row=0,sticky ="nsew")
         # page.configure(yscrollcommand=ttk.Scrollbar(page).set)
-    # TODO: fix window management adn the current variable
     ttk.Label(page, text="Data Properties").grid(column=0, row=0)
     ttk.Label(page, text="Metadata").grid()
     if self.data:

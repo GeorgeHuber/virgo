@@ -33,7 +33,7 @@ def Page(self: App):
 
     self.widgetMenu = tk.Frame(panel)
     self.configMenu = tk.Frame(panel)
-    panel.add(self.widgetMenu, text='Widgets') 
+    panel.add(self.widgetMenu, text='Nodes') 
     panel.add(self.configMenu, text='Configurations') 
     
     panel.grid(column=0, row=0, sticky="nsew")
@@ -80,7 +80,7 @@ def Page(self: App):
         configPaths = []
     for path in configPaths:
         if ".virgo" in path:
-            with open(f"configurations/{path}", "r") as file:
+            with open(os.path.join("configurations",path), "r") as file:
                 #TODO: redundant load> low priority
                 json_data = file.read()
                 data = json.loads(json_data)
