@@ -1,0 +1,167 @@
+{
+    "nodes": [
+        {
+            "moduleName": "virgo.nodes.base_nodes",
+            "className": "DataSourceNode",
+            "description": null,
+            "isSource": true,
+            "x": 104,
+            "y": 58,
+            "varName": "lon",
+            "ins": [],
+            "outs": [
+                0
+            ]
+        },
+        {
+            "moduleName": "virgo.nodes.base_nodes",
+            "className": "DataSourceNode",
+            "description": null,
+            "isSource": true,
+            "x": 84,
+            "y": 276,
+            "varName": "lat",
+            "ins": [],
+            "outs": [
+                1
+            ]
+        },
+        {
+            "moduleName": "virgo.nodes.base_nodes",
+            "className": "DataSourceNode",
+            "description": null,
+            "isSource": true,
+            "x": 70,
+            "y": 490,
+            "varName": "T",
+            "ins": [],
+            "outs": [
+                2
+            ]
+        },
+        {
+            "moduleName": "virgo.nodes.graphical.cartopy_graphs",
+            "className": "ContourPlot",
+            "description": "Contour Plot v2",
+            "isSource": false,
+            "x": 674,
+            "y": 313,
+            "ins": [
+                0,
+                1,
+                2
+            ],
+            "outs": []
+        },
+        {
+            "moduleName": "virgo.nodes.functional.data_operations",
+            "className": "DimensionIndex",
+            "description": "Index a dimension",
+            "isSource": false,
+            "x": 469,
+            "y": 453,
+            "varName": "time",
+            "index": "0.0",
+            "ins": [
+                3
+            ],
+            "outs": [
+                3
+            ]
+        },
+        {
+            "moduleName": "virgo.nodes.functional.data_operations",
+            "className": "DimensionIndex",
+            "description": "Index a dimension",
+            "isSource": false,
+            "x": 281,
+            "y": 485,
+            "varName": "lev",
+            "index": "1000.0",
+            "ins": [
+                4
+            ],
+            "outs": [
+                4
+            ]
+        }
+    ],
+    "ins": [
+        {
+            "description": "x-axis",
+            "parent": 3,
+            "edges": [
+                0
+            ]
+        },
+        {
+            "description": "y-axis",
+            "parent": 3,
+            "edges": [
+                1
+            ]
+        },
+        {
+            "description": "data",
+            "parent": 3,
+            "edges": [
+                3
+            ]
+        },
+        {
+            "description": "data",
+            "parent": 4,
+            "edges": [
+                4
+            ]
+        },
+        {
+            "description": "data",
+            "parent": 5,
+            "edges": [
+                2
+            ]
+        }
+    ],
+    "outs": [
+        {
+            "description": "lon",
+            "parent": 0,
+            "edges": [
+                0
+            ]
+        },
+        {
+            "description": "lat",
+            "parent": 1,
+            "edges": [
+                1
+            ]
+        },
+        {
+            "description": "T",
+            "parent": 2,
+            "edges": [
+                4
+            ]
+        },
+        {
+            "description": "sliced data",
+            "parent": 4,
+            "edges": [
+                2
+            ]
+        },
+        {
+            "description": "sliced data",
+            "parent": 5,
+            "edges": [
+                3
+            ]
+        }
+    ],
+    "metadata": {
+        "title": "Contour Plot",
+        "description": "Temp-lon-lat"
+    }
+}

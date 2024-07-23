@@ -2,6 +2,7 @@
 # $ conda create --name <env> --file <this file>
 # platform: osx-64\
 
+cartopy=0.22.0
 dask=2024.5.0
 h5netcdf=1.2.0
 matplotlib=3.8.4

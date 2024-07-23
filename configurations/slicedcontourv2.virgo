@@ -1,0 +1,263 @@
+{
+    "nodes": [
+        {
+            "moduleName": "virgo.nodes.base_nodes",
+            "className": "DataSourceNode",
+            "description": null,
+            "isSource": true,
+            "x": 28,
+            "y": 36,
+            "varName": "lon",
+            "ins": [],
+            "outs": [
+                0
+            ]
+        },
+        {
+            "moduleName": "virgo.nodes.base_nodes",
+            "className": "DataSourceNode",
+            "description": null,
+            "isSource": true,
+            "x": 362,
+            "y": 36,
+            "varName": "lat",
+            "ins": [],
+            "outs": [
+                1
+            ]
+        },
+        {
+            "moduleName": "virgo.nodes.base_nodes",
+            "className": "DataSourceNode",
+            "description": null,
+            "isSource": true,
+            "x": 8,
+            "y": 412,
+            "varName": "T",
+            "ins": [],
+            "outs": [
+                2
+            ]
+        },
+        {
+            "moduleName": "virgo.nodes.functional.data_operations",
+            "className": "DimensionIndex",
+            "description": "Index a dimension",
+            "isSource": false,
+            "x": 205,
+            "y": 425,
+            "varName": "time",
+            "index": "0.0",
+            "ins": [
+                0
+            ],
+            "outs": [
+                3
+            ]
+        },
+        {
+            "moduleName": "virgo.nodes.functional.data_operations",
+            "className": "DimensionIndex",
+            "description": "Index a dimension",
+            "isSource": false,
+            "x": 404,
+            "y": 452,
+            "varName": "lev",
+            "index": "100.0",
+            "ins": [
+                1
+            ],
+            "outs": [
+                4
+            ]
+        },
+        {
+            "moduleName": "virgo.nodes.functional.data_operations",
+            "className": "DimensionSlice",
+            "description": "Slice a dimension",
+            "isSource": false,
+            "x": 188,
+            "y": 11,
+            "varName": "lon",
+            "start": "-30.0",
+            "stop": "30.0",
+            "step": "1",
+            "ins": [
+                2,
+                3
+            ],
+            "outs": [
+                5,
+                6
+            ]
+        },
+        {
+            "moduleName": "virgo.nodes.functional.data_operations",
+            "className": "DimensionSlice",
+            "description": "Slice a dimension",
+            "isSource": false,
+            "x": 503,
+            "y": 18,
+            "varName": "lat",
+            "start": "0.0",
+            "stop": "60.0",
+            "step": "1",
+            "ins": [
+                4,
+                5
+            ],
+            "outs": [
+                7,
+                8
+            ]
+        },
+        {
+            "moduleName": "virgo.nodes.graphical.cartopy_graphs",
+            "className": "ContourPlot",
+            "description": "Contour Plot v2",
+            "isSource": false,
+            "x": 745,
+            "y": 307,
+            "ins": [
+                6,
+                7,
+                8
+            ],
+            "outs": []
+        }
+    ],
+    "ins": [
+        {
+            "description": "data",
+            "parent": 3,
+            "edges": [
+                2
+            ]
+        },
+        {
+            "description": "data",
+            "parent": 4,
+            "edges": [
+                3
+            ]
+        },
+        {
+            "description": "axis",
+            "parent": 5,
+            "edges": [
+                0
+            ]
+        },
+        {
+            "description": "data",
+            "parent": 5,
+            "edges": [
+                4
+            ]
+        },
+        {
+            "description": "axis",
+            "parent": 6,
+            "edges": [
+                1
+            ]
+        },
+        {
+            "description": "data",
+            "parent": 6,
+            "edges": [
+                6
+            ]
+        },
+        {
+            "description": "x-axis",
+            "parent": 7,
+            "edges": [
+                5
+            ]
+        },
+        {
+            "description": "y-axis",
+            "parent": 7,
+            "edges": [
+                7
+            ]
+        },
+        {
+            "description": "data",
+            "parent": 7,
+            "edges": [
+                8
+            ]
+        }
+    ],
+    "outs": [
+        {
+            "description": "lon",
+            "parent": 0,
+            "edges": [
+                2
+            ]
+        },
+        {
+            "description": "lat",
+            "parent": 1,
+            "edges": [
+                4
+            ]
+        },
+        {
+            "description": "T",
+            "parent": 2,
+            "edges": [
+                0
+            ]
+        },
+        {
+            "description": "sliced data",
+            "parent": 3,
+            "edges": [
+                1
+            ]
+        },
+        {
+            "description": "sliced data",
+            "parent": 4,
+            "edges": [
+                3
+            ]
+        },
+        {
+            "description": "sliced axis",
+            "parent": 5,
+            "edges": [
+                6
+            ]
+        },
+        {
+            "description": "sliced data",
+            "parent": 5,
+            "edges": [
+                5
+            ]
+        },
+        {
+            "description": "sliced axis",
+            "parent": 6,
+            "edges": [
+                7
+            ]
+        },
+        {
+            "description": "sliced data",
+            "parent": 6,
+            "edges": [
+                8
+            ]
+        }
+    ],
+    "metadata": {
+        "title": "sliced contour v2",
+        "description": "lon-lat contour w/cartopy"
+    }
+}
