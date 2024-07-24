@@ -51,7 +51,7 @@ def Page(self: App):
     self.widgetMenu.grid_rowconfigure(0, weight=1)
     self.widgetMenu.grid_columnconfigure(0, weight=1)
 
-    widgets = scrollable_frame.ScrollableFrame(self.widgetMenu,  highlightthickness=2, highlightbackground="green")
+    widgets = scrollable_frame.ScrollableFrame(self.widgetMenu)
     widgetsFrame = widgets.get()
     
     #List of different widgets to add to the canvas
@@ -73,7 +73,7 @@ def Page(self: App):
     # Configurations Code
     self.configMenu.grid_rowconfigure(0, weight=1)
     self.configMenu.grid_columnconfigure(0, weight=1)
-    config = scrollable_frame.ScrollableFrame(self.configMenu, highlightthickness=2, highlightbackground="red")
+    config = scrollable_frame.ScrollableFrame(self.configMenu)
     configFrame = config.get()
 
     ttk.Label(configFrame, text="Prebuilt Configurations", style="H3.TLabel").grid()
