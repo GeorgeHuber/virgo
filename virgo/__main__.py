@@ -6,12 +6,8 @@ from tkinter import ttk
 import xarray as xr
 
 """TODOS:
-    Delete node functionality
     Styling!!!!
     Tooltips above each widget
-    Know that you opened the file
-    Function to slice/index data
-    Save graph files
     Ensure 1 input max connections
     
     BUGS:
@@ -21,12 +17,16 @@ import xarray as xr
 
 
     DONE:
+    Delete node functionality
     Move functional node to bottom of options panel
     Glitch when selecting the dropdown
     Glitch when going out of the window and back in
     Support multiple edges
     Backtrace edges to account for readjustment on two way connections
     Make debug env variable rather than hard coding
+    Know that you opened the file
+    Function to slice/index data
+    Save graph files
 """
 
 if __name__ == "__main__":
