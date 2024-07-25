@@ -18,8 +18,9 @@ class Simple2D(GraphNode):
         print("graphing",axis1.shape,axis2.shape)
         ax = fig.add_subplot(111)
         ax.plot(axis1, axis2)
-        ax.set_xlabel(axis1.attrs["long_name"])
-        ax.set_ylabel(axis2.attrs["long_name"])
+        ax.set_xlabel("{} {}".format(axis1.attrs["long_name"], "["+axis1.attrs['units']+"]" if 'units' in axis1.attrs else ""))
+        ax.set_ylabel("{} {}".format(axis2.attrs["long_name"], "["+axis2.attrs['units']+"]" if 'units' in axis2.attrs else ""))
+        ax.set_title("{} vs {}".format(axis2.attrs["long_name"],axis1.attrs["long_name"], ))
         
 
 class SimpleColorMesh(GraphNode):

@@ -4,7 +4,7 @@ from tkinter import ttk
 from virgo import functions, graph, utils
 from matplotlib.figure import Figure 
 from matplotlib.backends.backend_tkagg import (FigureCanvasTkAgg, NavigationToolbar2Tk)
-
+from virgo.ui.components import options_popup
 """
 Widgets are visuals passed to the Draggable node
 object to be rendered on the canvas. Nodes on the other 
@@ -79,18 +79,20 @@ class GraphWidget(tk.Frame):
         self.app = app
         self.node = node
         ttk.Label(self, text=node.description).grid()
-        ttk.Button(self, text="options").grid()
+        ttk.Button(self, text="options", command=self.node.options.show).grid()
 
 class GraphNode(graph.Node):
     description = "Graph Node"
-    def __init__(self, app, **kwargs):
+    def __init__(self, app, options=None, **kwargs):
         #TODO: make sure description inherits correctly
         super().__init__(app,**kwargs, description=self.description, module=self.module_wrapper)
+        self.options = options_popup.OptionsManager(self, options)
     def render(self):
         self.draggableWidget = graph.DraggableWidget(self, app=self.app, widgetClass=GraphWidget)
     def module_wrapper(self, *args):
-        fig = Figure(figsize = (8, 8), 
-                 dpi = 100) 
+        fig = Figure(
+            figsize = (8, 8), 
+            dpi = 100) 
         main = tk.Toplevel(self.app.root)
         canvas = FigureCanvasTkAgg(fig, master=main)  
         toolbar = NavigationToolbar2Tk(canvas, main)
@@ -99,6 +101,15 @@ class GraphNode(graph.Node):
         self.plot(*args, fig)
     def plot(self, *args):
         pass
+    def get_state(self):
+        state = super().get_state()
+        if self.options:
+            state["options"] = self.options.get_state()
+        return state
+    def set_state(self, state):
+        super().set_state(state)
+        if "options" in state:
+            self.options.set_state(state["options"])
 
 
 class FunctionalWidget(tk.Frame):

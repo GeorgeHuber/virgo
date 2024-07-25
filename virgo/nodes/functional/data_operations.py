@@ -157,7 +157,6 @@ class DimensionSliceWidget(tk.Frame):
         self.set_slice_handler()
 
     def set_slice_handler(self, varName=None, idx=None, op=None):
-        print("handler triggered")
         dimName = self.dimName.get()
         dimStart = self.dimStart.get()
         dimStop = self.dimStop.get()
