@@ -5,9 +5,9 @@
             "className": "DataSourceNode",
             "description": null,
             "isSource": true,
-            "x": 50,
-            "y": 88,
-            "varName": "time",
+            "x": 104,
+            "y": 58,
+            "varName": "lon",
             "ins": [],
             "outs": [
                 0
@@ -18,24 +18,42 @@
             "className": "DataSourceNode",
             "description": null,
             "isSource": true,
-            "x": 20,
-            "y": 278,
-            "varName": "T",
+            "x": 84,
+            "y": 276,
+            "varName": "lat",
             "ins": [],
             "outs": [
                 1
             ]
         },
         {
-            "moduleName": "virgo.nodes.graphical.example_graphs",
-            "className": "Simple2D",
-            "description": "2Var-Line Plot",
+            "moduleName": "virgo.nodes.base_nodes",
+            "className": "DataSourceNode",
+            "description": null,
+            "isSource": true,
+            "x": 42,
+            "y": 490,
+            "varName": "U",
+            "ins": [],
+            "outs": [
+                2
+            ]
+        },
+        {
+            "moduleName": "virgo.nodes.graphical.cartopy_graphs",
+            "className": "GeoContourPlot",
+            "description": "Contour Plot v2",
             "isSource": false,
-            "x": 556,
-            "y": 147,
+            "x": 674,
+            "y": 313,
+            "options": {
+                "projection": 3,
+                "cmap": 6
+            },
             "ins": [
                 0,
-                1
+                1,
+                2
             ],
             "outs": []
         },
@@ -44,42 +62,26 @@
             "className": "DimensionIndex",
             "description": "Index a dimension",
             "isSource": false,
-            "x": 334,
-            "y": 350,
+            "x": 469,
+            "y": 453,
+            "varName": "time",
+            "index": "0.0",
+            "ins": [
+                3
+            ],
+            "outs": [
+                3
+            ]
+        },
+        {
+            "moduleName": "virgo.nodes.functional.data_operations",
+            "className": "DimensionIndex",
+            "description": "Index a dimension",
+            "isSource": false,
+            "x": 281,
+            "y": 485,
             "varName": "lev",
-            "index": "350.0",
-            "ins": [
-                2
-            ],
-            "outs": [
-                2
-            ]
-        },
-        {
-            "moduleName": "virgo.nodes.functional.data_operations",
-            "className": "DimensionIndex",
-            "description": "Index a dimension",
-            "isSource": false,
-            "x": 491,
-            "y": 411,
-            "varName": "lon",
-            "index": "0.0",
-            "ins": [
-                3
-            ],
-            "outs": [
-                3
-            ]
-        },
-        {
-            "moduleName": "virgo.nodes.functional.data_operations",
-            "className": "DimensionIndex",
-            "description": "Index a dimension",
-            "isSource": false,
-            "x": 185,
-            "y": 330,
-            "varName": "lat",
-            "index": "0.0",
+            "index": "0.019999999552965164",
             "ins": [
                 4
             ],
@@ -90,81 +92,80 @@
     ],
     "ins": [
         {
-            "description": "x",
-            "parent": 2,
+            "description": "x-axis",
+            "parent": 3,
             "edges": [
                 0
             ]
         },
         {
-            "description": "y",
-            "parent": 2,
+            "description": "y-axis",
+            "parent": 3,
             "edges": [
-                3
+                1
             ]
         },
         {
             "description": "data",
             "parent": 3,
             "edges": [
-                4
+                3
             ]
         },
         {
             "description": "data",
             "parent": 4,
             "edges": [
-                2
+                4
             ]
         },
         {
             "description": "data",
             "parent": 5,
             "edges": [
-                1,
-                1
+                2
             ]
         }
     ],
     "outs": [
         {
-            "description": "time",
+            "description": "lon",
             "parent": 0,
             "edges": [
                 0
             ]
         },
         {
-            "description": "T",
+            "description": "lat",
             "parent": 1,
+            "edges": [
+                1
+            ]
+        },
+        {
+            "description": "U",
+            "parent": 2,
             "edges": [
                 4
             ]
         },
         {
             "description": "sliced data",
-            "parent": 3,
-            "edges": [
-                3
-            ]
-        },
-        {
-            "description": "sliced data",
             "parent": 4,
             "edges": [
-                1
+                2
             ]
         },
         {
             "description": "sliced data",
             "parent": 5,
             "edges": [
-                2
+                3
             ]
         }
     ],
     "metadata": {
-        "title": "2d Line Plot",
-        "description": "temp-time"
+        "title": "South Pole Stereo",
+        "description": "Stereographic Plot of Wind"
     }
 }

@@ -32,6 +32,11 @@ def Page(self: App):
     panelBorder.grid(column=0, row=0, sticky="nsew")
     panelBorder.grid_rowconfigure(0, weight=1)
     panelBorder.grid_columnconfigure(0, weight=1)
+
+    buttonFrame = tk.Frame(panelBorder)
+    ttk.Button(buttonFrame, text="Run Canvas", command=self.run_canvas).grid(pady=12)
+    ttk.Button(buttonFrame, text="Clear Canvas", command=self.clear_canvas).grid(pady=12)
+    buttonFrame.grid(column=0, row=1, sticky="ns")
     panel = ttk.Notebook(panelBorder, style="CanvasPage.TNotebook")
 
     # Info Box
@@ -65,9 +70,6 @@ def Page(self: App):
     ttk.Label(widgetsFrame, text="Functions:", style="H3.TLabel").grid()
     for nodeType in functional.__all__:
         ttk.Button(widgetsFrame, text="{}".format(nodeType.description), command=lambda x=nodeType: self.add_node_to_canvas(x)).grid()
-
-    ttk.Button(widgetsFrame, text="Run Canvas", command=self.run_canvas).grid(pady=20)
-    ttk.Button(widgetsFrame, text="Clear Canvas", command=self.clear_canvas).grid(pady=20)
    
 
     # Configurations Code

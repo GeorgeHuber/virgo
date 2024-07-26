@@ -189,7 +189,7 @@
         }
     ],
     "metadata": {
-        "title": "Temperature vs altitude",
+        "title": "Temperature Altitude Contour",
         "description": "lat-alt-temp countour"
     }
 }

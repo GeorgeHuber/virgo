@@ -99,6 +99,7 @@ class GraphNode(graph.Node):
         toolbar.update() 
         canvas.get_tk_widget().pack()
         self.plot(*args, fig)
+        print("finished graphing")
     def plot(self, *args):
         pass
     def get_state(self):

@@ -41,7 +41,7 @@
         },
         {
             "moduleName": "virgo.nodes.graphical.cartopy_graphs",
-            "className": "ContourPlot",
+            "className": "GeoContourPlot",
             "description": "Contour Plot v2",
             "isSource": false,
             "x": 674,
@@ -161,7 +161,7 @@
         }
     ],
     "metadata": {
-        "title": "Contour Plot",
-        "description": "Temp-lon-lat"
+        "title": "Georeferenced Contour Plot",
+        "description": "Var-lon-lat with projection options"
     }
 }

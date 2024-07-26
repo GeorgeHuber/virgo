@@ -55,8 +55,8 @@ class Node:
             output = self.module(*args)
         except Exception as e:
             tk.messagebox.showerror("Error", f"Node {self.description} failed to run: {e}")
+            print("failed to run, resetting")
             for inputVar in self.ins:
-                print("failed to run, resetting")
                 inputVar.ready = False
                 inputVar.buffer = None
             return

@@ -113,7 +113,7 @@
         },
         {
             "moduleName": "virgo.nodes.graphical.cartopy_graphs",
-            "className": "ContourPlot",
+            "className": "GeoContourPlot",
             "description": "Contour Plot v2",
             "isSource": false,
             "x": 745,
@@ -257,7 +257,7 @@
         }
     ],
     "metadata": {
-        "title": "sliced contour v2",
+        "title": "Georeferenced Sliced Contour",
         "description": "lon-lat contour w/cartopy"
     }
 }

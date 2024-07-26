@@ -161,7 +161,7 @@
         }
     ],
     "metadata": {
-        "title": "Temperature Colormap",
+        "title": "Colormesh",
         "description": "lon-lat-temp colormesh"
     }
 }

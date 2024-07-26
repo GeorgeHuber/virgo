@@ -7,7 +7,7 @@
             "isSource": true,
             "x": 28,
             "y": 36,
-            "varName": "lat",
+            "varName": "lon",
             "ins": [],
             "outs": [
                 0
@@ -18,9 +18,9 @@
             "className": "DataSourceNode",
             "description": null,
             "isSource": true,
-            "x": 29,
-            "y": 221,
-            "varName": "lev",
+            "x": 362,
+            "y": 36,
+            "varName": "lat",
             "ins": [],
             "outs": [
                 1
@@ -31,8 +31,8 @@
             "className": "DataSourceNode",
             "description": null,
             "isSource": true,
-            "x": 7,
-            "y": 409,
+            "x": 13,
+            "y": 414,
             "varName": "T",
             "ins": [],
             "outs": [
@@ -44,8 +44,8 @@
             "className": "DimensionIndex",
             "description": "Index a dimension",
             "isSource": false,
-            "x": 185,
-            "y": 418,
+            "x": 205,
+            "y": 425,
             "varName": "time",
             "index": "0.0",
             "ins": [
@@ -60,10 +60,10 @@
             "className": "DimensionIndex",
             "description": "Index a dimension",
             "isSource": false,
-            "x": 321,
-            "y": 461,
-            "varName": "lon",
-            "index": "0.0",
+            "x": 384,
+            "y": 457,
+            "varName": "lev",
+            "index": "1000.0",
             "ins": [
                 1
             ],
@@ -72,17 +72,23 @@
             ]
         },
         {
-            "moduleName": "virgo.nodes.functional.Units",
-            "className": "hPa_to_Km",
-            "description": "Convert from hPa to km",
+            "moduleName": "virgo.nodes.functional.data_operations",
+            "className": "DimensionSlice",
+            "description": "Slice a dimension",
             "isSource": false,
-            "x": 195,
-            "y": 246,
+            "x": 188,
+            "y": 11,
+            "varName": "lon",
+            "start": "-180.0",
+            "stop": "END",
+            "step": "1",
             "ins": [
-                2
+                2,
+                3
             ],
             "outs": [
-                5
+                5,
+                6
             ]
         },
         {
@@ -90,28 +96,33 @@
             "className": "SimpleContourPlot",
             "description": "Contour Plot",
             "isSource": false,
-            "x": 482,
-            "y": 47,
+            "x": 752,
+            "y": 248,
             "ins": [
-                3,
                 4,
-                5
+                5,
+                6
             ],
             "outs": []
         },
         {
-            "moduleName": "virgo.nodes.functional.Calculus",
-            "className": "PartialDerivative",
-            "description": "Take the partial derivative: dY/dX",
+            "moduleName": "virgo.nodes.functional.data_operations",
+            "className": "DimensionSlice",
+            "description": "Slice a dimension",
             "isSource": false,
-            "x": 463,
-            "y": 338,
+            "x": 503,
+            "y": 18,
+            "varName": "lat",
+            "start": "-90.0",
+            "stop": "END",
+            "step": "1",
             "ins": [
-                6,
-                7
+                7,
+                8
             ],
             "outs": [
-                6
+                7,
+                8
             ]
         }
     ],
@@ -131,61 +142,68 @@
             ]
         },
         {
-            "description": "lev - Hpa",
+            "description": "axis",
             "parent": 5,
             "edges": [
-                1
+                0
+            ]
+        },
+        {
+            "description": "data",
+            "parent": 5,
+            "edges": [
+                4
             ]
         },
         {
             "description": "x-axis",
             "parent": 6,
             "edges": [
-                0
+                5
             ]
         },
         {
             "description": "y-axis",
             "parent": 6,
             "edges": [
-                5
+                7
             ]
         },
         {
             "description": "data",
             "parent": 6,
             "edges": [
+                8
+            ]
+        },
+        {
+            "description": "axis",
+            "parent": 7,
+            "edges": [
+                1
+            ]
+        },
+        {
+            "description": "data",
+            "parent": 7,
+            "edges": [
                 6
-            ]
-        },
-        {
-            "description": "X",
-            "parent": 7,
-            "edges": [
-                5
-            ]
-        },
-        {
-            "description": "Y",
-            "parent": 7,
-            "edges": [
-                4
             ]
         }
     ],
     "outs": [
         {
-            "description": "lat",
+            "description": "lon",
             "parent": 0,
             "edges": [
-                3
+                2
             ]
         },
         {
-            "description": "lev",
+            "description": "lat",
             "parent": 1,
             "edges": [
-                2
+                7
             ]
         },
         {
@@ -206,27 +224,40 @@
             "description": "sliced data",
             "parent": 4,
             "edges": [
-                7
+                3
             ]
         },
         {
-            "description": "altitude - km",
+            "description": "sliced axis",
             "parent": 5,
             "edges": [
-                6,
                 4
             ]
         },
         {
-            "description": "dY/dX",
+            "description": "sliced data",
+            "parent": 5,
+            "edges": [
+                8
+            ]
+        },
+        {
+            "description": "sliced axis",
             "parent": 7,
             "edges": [
                 5
             ]
+        },
+        {
+            "description": "sliced data",
+            "parent": 7,
+            "edges": [
+                6
+            ]
         }
     ],
     "metadata": {
-        "title": "Temp Gradient Contour",
-        "description": "DTemp/DAlt contour"
+        "title": "Generic Sliced Contour",
+        "description": "lat-lon-var w/slicing"
     }
 }
