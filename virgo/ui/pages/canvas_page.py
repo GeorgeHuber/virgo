@@ -6,6 +6,8 @@ import os, json, PIL
 
 from virgo.nodes import base_nodes, graphical, functional
 from virgo.ui.components import scrollable_frame
+from virgo import utils
+
 from typing import TYPE_CHECKING
 if TYPE_CHECKING:
     from virgo.app import App
@@ -78,24 +80,27 @@ def Page(self: App):
     config = scrollable_frame.ScrollableFrame(self.configMenu)
     configFrame = config.get()
 
-    ttk.Label(configFrame, text="Prebuilt Configurations", style="H3.TLabel").grid()
-    try:
-        #TODO:  Dont hard code this for max & linux
-        configPaths = os.listdir("configurations")
-    except Exception as e:
-        print(e)
-        configPaths = []
-    for path in configPaths:
-        if ".virgo" in path:
-            with open(os.path.join("configurations",path), "r") as file:
-                #TODO: redundant load> low priority
-                json_data = file.read()
-                data = json.loads(json_data)
-                title = data["metadata"]["title"] if "metadata" in data and "title" in data["metadata"] else "Untitled"
-                description = data["metadata"]["description"] if "metadata" in data and "description" in data["metadata"] else "No description"
-            ttk.Button(configFrame,text="{}".format(title), command=lambda x=f"configurations/{path}": self.load_canvas(x)).grid()
-            ttk.Label(configFrame, text=f"info: {description}\n@ {path}").grid()
     
+    def build_configurations():
+        utils.destroy_children(configFrame)
+        ttk.Label(configFrame, text="Prebuilt Configurations", style="H3.TLabel").grid()
+        try:
+            #TODO:  Dont hard code this for max & linux
+            configPaths = os.listdir("configurations")
+        except Exception as e:
+            print(e)
+            configPaths = []
+        for path in configPaths:
+            if ".virgo" in path:
+                with open(os.path.join("configurations",path), "r") as file:
+                    #TODO: redundant load> low priority
+                    json_data = file.read()
+                    data = json.loads(json_data)
+                    title = data["metadata"]["title"] if "metadata" in data and "title" in data["metadata"] else "Untitled"
+                    description = data["metadata"]["description"] if "metadata" in data and "description" in data["metadata"] else "No description"
+                ttk.Button(configFrame,text="{}".format(title), command=lambda x=f"configurations/{path}": self.load_canvas(x)).grid()
+                ttk.Label(configFrame, text=f"info: {description}\n@ {path}").grid()
+    build_configurations()
     def scroll_handler(event):
         tabIdx = panel.index(panel.select())
         if tabIdx == 0:
@@ -113,6 +118,7 @@ def Page(self: App):
         widgets.hackyRefresh()
         config.hackyRefresh()
         self.root.update_idletasks()
+        build_configurations()
         # pass
     panel.bind('<<NotebookTabChanged>>', tab_change_handler)
     panel.add(self.widgetMenu, text='Nodes') 

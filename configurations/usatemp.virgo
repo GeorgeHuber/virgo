@@ -120,7 +120,9 @@
             "y": 262,
             "options": {
                 "projection": 1,
-                "cmap": 7
+                "cmap": 7,
+                "defaultName": 0,
+                "name":"Untitled"
             },
             "ins": [
                 6,

@@ -34,5 +34,5 @@ class ContourPlotAnimation(GraphNode):
             g = ax.contourf(X, Y, data, levels=12, cmap="bwr")
             ims.append([g,t])
         self.ani = animation.ArtistAnimation(fig, ims, blit=False, interval=400)
-        writer = animation.PillowWriter(fps=30)
+        writer = animation.PillowWriter(fps=10)
         self.ani.save("test.gif", writer=writer)

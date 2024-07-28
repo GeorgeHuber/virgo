@@ -95,7 +95,7 @@ class OptionsManager:
         print(self.options)
         self.frame = tk.Toplevel(self.node.app.root, *args, padx=6, pady=10, **kwargs)
         self.frame.geometry('300x500')
-        # self.frame.protocol("WM_DELETE_WINDOW", self.outro)
+        self.frame.protocol("WM_DELETE_WINDOW", self.outro)
         tk.Label(self.frame, text="Options Menu").grid()
         if not self.options:
             tk.Label(self.frame, text="No options specified for widget.")
@@ -125,7 +125,7 @@ class OptionsManager:
     def outro(self):
         for optionName in self.optionVars:
             val = self.optionVars[optionName].get()
-            if isinstance(val, str):
+            if isinstance(self.options[optionName], str):
                 self.options[optionName] = val
         self.frame.destroy()
         
