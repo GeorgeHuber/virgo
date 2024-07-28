@@ -65,4 +65,8 @@ Data source nodes supply data to the rest of the flow, for each field of your fi
 ## Technical Abstract
 The Goddard Earth Observing System (GEOS) models dynamical, physical, chemical and biological features of the atmosphere within the Earth System Modeling Framework (ESMF) up to an altitude of ~75 kilometers. As part of ongoing efforts to study the coupling between the lower and upper atmosphere, GEOS’s upper boundary must be raised to successfully encompass the dynamics of the mesosphere and thermosphere resulting from vertical propagation of solar and lunar tides, gravity waves, and Kelvin waves. This must be accomplished through a time-consuming process of tweaking the model. We developed an open source Visual Interface for Research using GEOS Output (VIRGO) which streamlines the model development pipeline by integrating data transfer, manipulation, and visualization into a single application installed as a Python package. VIRGO allows users to create and save custom visualization configurations and then execute them in a single click, aiding researchers and promoting the reusability of science code. VIRGO contains 14 prebuilt configurations for looking at GEOS output files while also allowing users to easily create new plots through its use of modular nodes. The VIRGO application is open source and available through GitHub at https://github.com/GeorgeHuber/virgo. 
 
-
+## Contact me
+For inquiries or help, feel free to contact me at: 
+```
+georgehuber8@gmail.com
+```
