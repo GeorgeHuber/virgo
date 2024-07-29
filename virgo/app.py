@@ -119,6 +119,7 @@ class App:
             self.sources = []
             self.nodes = []
         self.canvas.delete('all')
+        self.canvas.create_text(400, 300, text="Welcome to Virgo!\nUse the top menu to open a file and get started.")
     def update_canvas_page(self):
         pass
 

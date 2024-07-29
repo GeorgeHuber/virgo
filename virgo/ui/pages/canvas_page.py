@@ -42,10 +42,13 @@ def Page(self: App):
     panel = ttk.Notebook(panelBorder, style="CanvasPage.TNotebook")
 
     # Info Box
-    infoBox = ttk.Frame(self.canvas)
-    infoBox.grid()
-    ttk.Label(infoBox, text="Welcome to Virgo").grid()
-    ttk.Label(infoBox, text="Use the top menu to open a file and get started").grid()
+    # infoBox = ttk.Frame(self.canvas)
+    # ttk.Label(infoBox, text="Welcome to Virgo").grid()
+    # ttk.Label(infoBox, text="Use the top menu to open a file and get started").grid()
+    self.canvas.create_text(400, 300, text="Welcome to Virgo!\nUse the top menu to open a file and get started")
+    # self.canvas.create_window(400,300,window=infoBox)
+
+    #TODO: Build this using built in canvas methods
     self.canvasIcon = PIL.ImageTk.PhotoImage(self.iconBase.resize((64, 64)))
     ttk.Label(self.canvas, image=self.canvasIcon, width=10).grid(row=0, column=0, sticky="ne", padx=10, pady=10)
 
