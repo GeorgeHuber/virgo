@@ -2,9 +2,9 @@
 ## Visual Interface for Research using GEOS Output
 
 ## Background
-Welcome esteemed scientist, heliophysist, astronomer, or otherwise cool person! We are glad to show you around virgo and how it might be useful in your groundbreaking research (or even just make your plots easier to create).
+Welcome esteemed scientist, heliophysist, astronomer, or otherwise cool person!
 
-Virgo was developped in conjunction with NASA's Goddard Space Flight Center as a means of accelerating the extension of the [Goddard Earth Observing System](https://gmao.gsfc.nasa.gov/GEOS_systems/) (GEOS) into the upper atmosphere. Beyond this VIRGO has applications to researchers as a way to automate data manipulation and visualization through the use of visual scripting. Its core philosophy lies in its implementation of **Nodes** and **Edges** to make science code more reuasable and well-documented. Let's get after it!
+Virgo was developped in conjunction with NASA's Goddard Space Flight Center as a means of accelerating the extension of the [Goddard Earth Observing System](https://gmao.gsfc.nasa.gov/GEOS_systems/) (GEOS) into the upper atmosphere. Beyond this VIRGO has applications to researchers as a way to automate data manipulation and visualization through the use of visual scripting. Its core philosophy lies in its implementation of **Nodes** and **Edges** to make science code more reuasable and well-documented.
 
 ## Installation
 
@@ -52,15 +52,6 @@ and you should see the application pop up on your screen!
     - Click on the canvas to deselect a node
 - Use the configurations tab to open a prebuilt graph setup
 - Use the canvas top menu to save a canvas
-
-## Nodes
-VIRGO allows user to construct data flows using three main types of base nodes: Data source, functional, and graphical nodes.
-### Adding Custom Functionality
-### Data Sources
-Data source nodes supply data to the rest of the flow, for each field of your file you want to visualize a different datasource node is needed. When a canvas is run, execution starts at a data source and propogates through the network
-### Functional Nodes
-### Graphical Nodes
-
 
 ## Technical Abstract
 The Goddard Earth Observing System (GEOS) models dynamical, physical, chemical and biological features of the atmosphere within the Earth System Modeling Framework (ESMF) up to an altitude of ~75 kilometers. As part of ongoing efforts to study the coupling between the lower and upper atmosphere, GEOS’s upper boundary must be raised to successfully encompass the dynamics of the mesosphere and thermosphere resulting from vertical propagation of solar and lunar tides, gravity waves, and Kelvin waves. This must be accomplished through a time-consuming process of tweaking the model. We developed an open source Visual Interface for Research using GEOS Output (VIRGO) which streamlines the model development pipeline by integrating data transfer, manipulation, and visualization into a single application installed as a Python package. VIRGO allows users to create and save custom visualization configurations and then execute them in a single click, aiding researchers and promoting the reusability of science code. VIRGO contains 14 prebuilt configurations for looking at GEOS output files while also allowing users to easily create new plots through its use of modular nodes. The VIRGO application is open source and available through GitHub at https://github.com/GeorgeHuber/virgo. 
